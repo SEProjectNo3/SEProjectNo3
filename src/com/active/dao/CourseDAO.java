@@ -72,7 +72,7 @@ public class CourseDAO
 		Connection conn = getConnection();
 		
 		String insertSQL = "Insert Into Course(courseNumber,courseName,studentCount,major,professor)"
-				+ "Values(?,?,?,?,?)";
+				+ " Values(?,?,?,?,?)";
 		
 		PreparedStatement pstmt = null;
 		
@@ -149,8 +149,8 @@ public class CourseDAO
 	{
 		Connection conn = getConnection();
 		
-		String updateSQL = "update course set courseName = ? and professor = ? and studentCount = ? and major = ?"
-				+ "where courseNumber = ?";
+		String updateSQL = "update course set courseName = ? , professor = ? ,studentCount = ?, major = ?"
+				+ " where courseNumber = ?";
 		
 		PreparedStatement pstmt = null;
 		

@@ -6,7 +6,7 @@ public class Review
 	private int reviewNo;
 	private String writer;
 	private String content;
-	private int rate;
+	private int rate; // estimation
 	private Date time;
 	private String courseNumber;
 	

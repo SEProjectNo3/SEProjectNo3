@@ -128,7 +128,7 @@ public class CommentDAO
 	{
 		Connection conn = getConnection();
 		
-		String deleteSQL = "Delete from comment where ?";
+		String deleteSQL = "Delete from comment where commentNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -195,7 +195,8 @@ public class CommentDAO
 	{
 		ArrayList<Comment> commentList = new ArrayList<Comment>();
 		Connection conn = getConnection();
-
+		Comment tComment = new Comment();
+		
 		String searchSQL = "Select * from comment where lectureId = "+tempLectureId+"";
 		
 		Statement stmt = null;
@@ -207,7 +208,6 @@ public class CommentDAO
 			
 			while(rSet.next())
 			{
-				Comment tComment = new Comment();
 				tComment.setCommentNo(rSet.getInt("commentNo"));
 				tComment.setWriter(rSet.getString("writer"));
 				tComment.setContent(rSet.getString("content"));
@@ -228,6 +228,7 @@ public class CommentDAO
 	{
 		ArrayList<Comment> commentList = new ArrayList<Comment>();
 		Connection conn = getConnection();
+		Comment tComment = new Comment();
 
 		String searchSQL = "Select * from comment where writer = "+tempWriter+"";
 		
@@ -240,7 +241,39 @@ public class CommentDAO
 			
 			while(rSet.next())
 			{
-				Comment tComment = new Comment();
+				tComment.setCommentNo(rSet.getInt("commentNo"));
+				tComment.setWriter(rSet.getString("writer"));
+				tComment.setContent(rSet.getString("content"));
+				tComment.setWriteTime(rSet.getDate("writeTime"));
+				commentList.add(tComment);
+			}
+		}catch(SQLException e)
+		{
+			e.printStackTrace();
+		} finally
+		{
+			closeConnection(conn);
+		}
+		return commentList;
+	}
+	
+	public ArrayList<Comment> searchAllComment()
+	{
+		ArrayList<Comment> commentList = new ArrayList<Comment>();
+		Connection conn = getConnection();
+		Comment tComment = new Comment();
+
+		String searchSQL = "Select * from comment";
+		
+		Statement stmt = null;
+		
+		try
+		{
+			stmt = conn.createStatement();
+			ResultSet rSet = stmt.executeQuery(searchSQL);
+			
+			while(rSet.next())
+			{
 				tComment.setCommentNo(rSet.getInt("commentNo"));
 				tComment.setWriter(rSet.getString("writer"));
 				tComment.setContent(rSet.getString("content"));

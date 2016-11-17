@@ -7,6 +7,7 @@ public class Response
 	private int writer;
 	private Date time;
 	private String content;
+	
 	public int getResponseNo() {
 		return responseNo;
 	}

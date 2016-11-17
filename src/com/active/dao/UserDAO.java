@@ -146,11 +146,11 @@ public class UserDAO
 	 * Don't be used in our system
 	 * Because it is derived from U-DRims and e-class server pages.
 	 */
-	public boolean updateUser(User tempUser)
+	public boolean updateUser(String tempUserId, String tempPwd)
 	{
 		Connection conn = getConnection();
 		
-		String updateSQL = "";
+		String updateSQL = "update user set pwd = ? where userId = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -158,7 +158,8 @@ public class UserDAO
 		{
 			pstmt = conn.prepareStatement(updateSQL);
 			
-			pstmt.setString(1, tempUser.getUserId());
+			pstmt.setString(1, tempUserId);
+			pstmt.setString(2, tempPwd);
 			
 			int result = pstmt.executeUpdate();
 			
@@ -185,7 +186,7 @@ public class UserDAO
 		Connection conn = getConnection();
 		User tUser= new User();
 		
-		String searchSQL = "Select * from user where tempUserId = "+tempUserId+"";
+		String searchSQL = "Select * from user where tempUserId = "+tempUserId+" and pwd = "+tempPwd+"";
 		
 		Statement stmt = null;
 		
@@ -214,7 +215,7 @@ public class UserDAO
 		return tUser;
 	}
 	
-	public ArrayList<User> searchUser(String tempCourseNumber)
+	public ArrayList<User> searchCourseUser(String tempCourseNumber)
 	{
 		Connection conn = getConnection();
 		ArrayList<User> userList = new ArrayList<User>();

@@ -1,5 +1,4 @@
 package com.active.model;
-import java.util.HashMap;
 
 public class User
 {
@@ -10,7 +9,6 @@ public class User
 	private String email;
 	private String major;
 	private int userType; // information which checkout whether it is Professor or Student
-	private HashMap<String,String> courseStatus;
 	
 	public String getUserId() {
 		return userId;
@@ -53,12 +51,6 @@ public class User
 	}
 	public void setUserType(int userType) {
 		this.userType = userType;
-	}
-	public HashMap<String, String> getCourseStatus() {
-		return courseStatus;
-	}
-	public void setCourseStatus(HashMap<String, String> courseStatus) {
-		this.courseStatus = courseStatus;
 	}
 }
 

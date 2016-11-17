@@ -72,7 +72,7 @@ public class ExamDAO
 		Connection conn = getConnection();
 		
 		String insertSQL = "Insert Into Exam(examNo,courseNumber,chapter)"
-				+ "Values(?,?,?)";
+				+ " Values(?,?,?)";
 		
 		PreparedStatement pstmt = null;
 		
@@ -104,11 +104,11 @@ public class ExamDAO
 		}
 	}
 	
-	public boolean deleteExam(Exam tempExam)
+	public boolean deleteExam(int tempExamNo)
 	{
 		Connection conn = getConnection();
 		
-		String deleteSQL = "delete from exam where ";
+		String deleteSQL = "delete from exam where examNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -116,9 +116,7 @@ public class ExamDAO
 		{
 			pstmt = conn.prepareStatement(deleteSQL);
 			
-			pstmt.setInt(1, tempExam.getExamNo());
-			pstmt.setString(2, tempExam.getCourseNumber());
-			pstmt.setInt(3, tempExam.getChapter());
+			pstmt.setInt(1, tempExamNo);
 			
 			int result = pstmt.executeUpdate();
 			
@@ -140,12 +138,11 @@ public class ExamDAO
 		}
 	}
 	
-	public boolean updateExam(Exam tempExam)
+	public boolean updateExam(int tempExamNo, int tempChapter)
 	{
 		Connection conn = getConnection();
 		
-		String updateSQL = "update From exam(examNo,courseNumber,chapter)"
-				+ "Values(?,?,?)";
+		String updateSQL = "update exam set 
 		
 		PreparedStatement pstmt = null;
 		

@@ -1,5 +1,5 @@
 package com.active.model;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /* It manages user who is registered in course
  * 
@@ -10,11 +10,10 @@ public class Enroll
 	 * studentList User type List object represents list of students registered in course 
 	 * courseNumber object represents the primary code of course
 	 */
-	
-	private String userId;
-	private String courseNumber;
-	private int courseStatus;
-	private ArrayList<User> studentList;
+	private String userId; // Primary key in Database
+	private String courseNumber; // Primary key in Database
+	private String state;
+	private int enrollNo;
 	
 	public String getUserId() {
 		return userId;
@@ -28,16 +27,16 @@ public class Enroll
 	public void setCourseNumber(String courseNumber) {
 		this.courseNumber = courseNumber;
 	}
-	public int getCourseStatus() {
-		return courseStatus;
+	public String getState() {
+		return state;
 	}
-	public void setCourseStatus(int courseStatus) {
-		this.courseStatus = courseStatus;
+	public void setState(String state) {
+		this.state = state;
 	}
-	public ArrayList<User> getStudentList() {
-		return studentList;
+	public int getEnrollNo() {
+		return enrollNo;
 	}
-	public void setStudentList(ArrayList<User> studentList) {
-		this.studentList = studentList;
+	public void setEnrollNo(int enrollNo) {
+		this.enrollNo = enrollNo;
 	}
 }

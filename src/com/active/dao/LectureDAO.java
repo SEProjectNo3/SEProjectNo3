@@ -67,7 +67,7 @@ public class LectureDAO
 		}
 	}
 	
-	public boolean insertLecture(Lecture tempLecture)
+	public boolean insertLecture(Lecture tempLecture, String tempCourseNumber)
 	{
 		Connection conn = getConnection();
 		
@@ -81,7 +81,7 @@ public class LectureDAO
 			pstmt = conn.prepareStatement(insertSQL);
 			
 			pstmt.setString(1, tempLecture.getLectureId());
-			pstmt.setString(2, tempLecture.getCourseNumber());
+			pstmt.setString(2, tempCourseNumber);
 			pstmt.setString(3, tempLecture.getTitle());
 			pstmt.setString(4, tempLecture.getExplanation());
 			pstmt.setString(5, tempLecture.getFilePath());
@@ -107,11 +107,11 @@ public class LectureDAO
 		}
 	}
 	
-	public boolean deleteLecture(String tempCourseNumber, String tempLectureId)
+	public boolean deleteLecture(String tempLectureId)
 	{
 		Connection conn = getConnection();
 		
-		String deleteSQL = "delete from lecture where courseNumber = ? and lectureId = ?";
+		String deleteSQL = "delete from lecture where lectureId = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -119,8 +119,7 @@ public class LectureDAO
 		{
 			pstmt = conn.prepareStatement(deleteSQL);
 			
-			pstmt.setString(1, tempCourseNumber);
-			pstmt.setString(2, tempLectureId);
+			pstmt.setString(1, tempLectureId);
 			
 			int result = pstmt.executeUpdate();
 			
@@ -142,12 +141,11 @@ public class LectureDAO
 		}
 	}
 	
-	public boolean updateLecture(String LectureId)
+	public boolean updateLecture(String tempLectureId,String tempCourseNumber, String tempTitle, String tempExplanation, String tempFilePath, int tempHits)
 	{
 		Connection conn = getConnection();
 		
-		String udpateSQL = "Update From Lecture(lectureId,courseNumber,title,explanation,filePath,hits)"
-				+ "Values(?,?,?,?,?,?)";
+		String updateSQL = "update lecture set lectureId = ?, title = ?, explanation = ?, filePath = ?, hits = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -155,12 +153,12 @@ public class LectureDAO
 		{
 			pstmt = conn.prepareStatement(updateSQL);
 			
-			pstmt.setString(1, tempLecture.getLectureId());
-			pstmt.setString(2, tempLecture.getCourseNumber());
-			pstmt.setString(3, tempLecture.getTitle());
-			pstmt.setString(4, tempLecture.getExplanation());
-			pstmt.setString(5, tempLecture.getFilePath());
-			pstmt.setInt(6, tempLecture.getHits());
+			pstmt.setString(1, tempLectureId);
+			pstmt.setString(2, tempCourseNumber);
+			pstmt.setString(3, tempTitle);
+			pstmt.setString(4, tempExplanation);
+			pstmt.setString(5, tempFilePath);
+			pstmt.setInt(6, tempHits);
 			
 			int result = pstmt.executeUpdate();
 			
@@ -199,7 +197,6 @@ public class LectureDAO
 			while(rSet.next())
 			{
 				tLecture.setLectureId(rSet.getString("lectureId"));
-				tLecture.setCourseNumber(rSet.getString("courseNumber"));
 				tLecture.setTitle(rSet.getString("title"));
 				tLecture.setExplanation(rSet.getString("explanation"));
 				tLecture.setFilePath(rSet.getString("filePath"));
@@ -234,7 +231,6 @@ public class LectureDAO
 			while(rSet.next())
 			{
 				tLecture.setLectureId(rSet.getString("lectureId"));
-				tLecture.setCourseNumber(rSet.getString("courseNumber"));
 				tLecture.setTitle(rSet.getString("title"));
 				tLecture.setExplanation(rSet.getString("explanation"));
 				tLecture.setFilePath(rSet.getString("filePath"));
@@ -251,4 +247,44 @@ public class LectureDAO
 		}
 		return lectureList;
 	}	
+	
+	public ArrayList<Lecture> searchAllLecture()
+	{
+		Connection conn = getConnection();
+		Lecture tLecture= new Lecture();
+		ArrayList<Lecture> lectureList = new ArrayList<Lecture>();
+
+		String searchSQL = "Select * from Lecture";
+		
+		Statement stmt = null;
+		
+		try
+		{
+			stmt = conn.createStatement();
+			ResultSet rSet = stmt.executeQuery(searchSQL);
+			
+			while(rSet.next())
+			{
+				tLecture.setLectureId(rSet.getString("lectureId"));
+				tLecture.setTitle(rSet.getString("title"));
+				tLecture.setExplanation(rSet.getString("explanation"));
+				tLecture.setFilePath(rSet.getString("filePath"));
+				tLecture.setHits(rSet.getInt("hits"));
+				lectureList.add(tLecture);
+			}
+			
+		}catch(SQLException e)
+		{
+			e.printStackTrace();
+		} finally
+		{
+			closeConnection(conn);
+		}
+		return lectureList;
+	}	
+	
+	public boolean updateMaterialList(ArrayList<String> tempMaterialList)
+	{
+		return true;
+	}
 }

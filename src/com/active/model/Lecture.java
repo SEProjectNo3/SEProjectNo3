@@ -4,26 +4,17 @@ import java.util.ArrayList;
 public class Lecture 
 {
 	private String lectureId;
-	private String courseNumber;
 	private String title;
 	private String explanation;
 	private String filePath;
 	private int hits;
-	
 	private ArrayList<String> materialList;
-	private STATE state;
 	
 	public String getLectureId() {
 		return lectureId;
 	}
 	public void setLectureId(String lectureId) {
 		this.lectureId = lectureId;
-	}
-	public String getCourseNumber() {
-		return courseNumber;
-	}
-	public void setCourseNumber(String courseNumber) {
-		this.courseNumber = courseNumber;
 	}
 	public String getTitle() {
 		return title;
@@ -54,11 +45,5 @@ public class Lecture
 	}
 	public void setMaterialList(ArrayList<String> materialList) {
 		this.materialList = materialList;
-	}
-	public STATE getState() {
-		return state;
-	}
-	public void setState(STATE state) {
-		this.state = state;
 	}
 }

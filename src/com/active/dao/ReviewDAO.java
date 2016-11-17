@@ -73,7 +73,7 @@ public class ReviewDAO
 		Connection conn = getConnection();
 		
 		String insertSQL = "Insert Into Review(reviewNo,writer,content,rate,time,courseNumber)"
-				+ "Values(?,?,?,?,?,?)";
+				+ " Values(?,?,?,?,?,?)";
 		
 		PreparedStatement pstmt = null;
 		
@@ -142,11 +142,11 @@ public class ReviewDAO
 		}
 	}
 	
-	public boolean updateReview(String tempContent, int tempReviewNo)
+	public boolean updateReview(String tempContent, String tempRate, int tempReviewNo)
 	{
 		Connection conn = getConnection();
 		
-		String updateSQL = "update review set content = ? where reviewNo = ?";
+		String updateSQL = "update review set content = ?, rate = ? where reviewNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -155,7 +155,8 @@ public class ReviewDAO
 			pstmt = conn.prepareStatement(updateSQL);
 			
 			pstmt.setString(1, tempContent);
-			pstmt.setInt(2, tempReviewNo);
+			pstmt.setString(2, tempRate);
+			pstmt.setInt(3, tempReviewNo);
 			
 			int result = pstmt.executeUpdate();
 			
@@ -184,6 +185,41 @@ public class ReviewDAO
 		Review tReview= new Review();
 
 		String searchSQL = "Select * from review where courseNumber = "+tempCourseNumber+"";
+		
+		Statement stmt = null;
+		
+		try
+		{
+			stmt = conn.createStatement();
+			ResultSet rSet = stmt.executeQuery(searchSQL);
+			
+			while(rSet.next())
+			{
+				tReview.setReviewNo(rSet.getInt("reviewNo"));
+				tReview.setWriter(rSet.getString("writer"));
+				tReview.setContent(rSet.getString("content"));
+				tReview.setRate(rSet.getInt("rate"));
+				tReview.setTime(rSet.getDate("time"));
+				tReview.setCourseNumber(rSet.getString("courseNumber"));
+				reviewList.add(tReview);
+			}
+		}catch(SQLException e)
+		{
+			e.printStackTrace();
+		} finally
+		{
+			closeConnection(conn);
+		}
+		return reviewList;
+	}
+	
+	public ArrayList<Review> searchWriterReview(String tempWriter)
+	{
+		ArrayList<Review> reviewList = new ArrayList<Review>();
+		Connection conn = getConnection();
+		Review tReview= new Review();
+
+		String searchSQL = "Select * from review where writer = "+tempWriter+"";
 		
 		Statement stmt = null;
 		

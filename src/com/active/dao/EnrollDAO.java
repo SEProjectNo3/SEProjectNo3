@@ -72,8 +72,8 @@ public class EnrollDAO
 	{
 		Connection conn = getConnection();
 		
-		String insertSQL = "Insert Into Course(userId,courseNumber,courseStatus)"
-				+ "Values(?,?,?)";
+		String insertSQL = "insert into enroll(userId,courseNumber,courseStatus)"
+				+ " values(?,?,?)";
 		
 		PreparedStatement pstmt = null;
 		
@@ -83,7 +83,7 @@ public class EnrollDAO
 			
 			pstmt.setString(1, tempEnroll.getUserId());
 			pstmt.setString(2, tempEnroll.getCourseNumber());
-			pstmt.setInt(3, tempEnroll.getCourseStatus());
+			pstmt.setString(3, tempEnroll.getState());
 			
 			int result = pstmt.executeUpdate();
 			
@@ -105,11 +105,11 @@ public class EnrollDAO
 		}
 	}
 	
-	public boolean deleteEnroll(String tempCourseNumber)
+	public boolean deleteEnroll(int tempEnrollNo)
 	{
 		Connection conn = getConnection();
 		
-		String deleteSQL = "delete from enroll where courseNumber = ?";
+		String deleteSQL = "delete from enroll where enrollNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -117,7 +117,7 @@ public class EnrollDAO
 		{
 			pstmt = conn.prepareStatement(deleteSQL);
 			
-			pstmt.setString(1, tempCourseNumber);
+			pstmt.setInt(1, tempEnrollNo);
 			
 			int result = pstmt.executeUpdate();
 			
@@ -139,15 +139,11 @@ public class EnrollDAO
 		}
 	}
 	
-	/*
-	 * 코스명과
-	 */
-	public boolean updateEnroll(String tempCourseNumber, String tempProfessor)
+	public boolean updateEnroll(int tempEnrollNo, String tempStatus)
 	{
 		Connection conn = getConnection();
 		
-		String updateSQL = "Delete From enroll(userId,courseNumber,courseStatus)"
-				+ "Values(?,?,?)";
+		String updateSQL = "update enroll set status = ? where enrollNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -155,9 +151,8 @@ public class EnrollDAO
 		{
 			pstmt = conn.prepareStatement(updateSQL);
 			
-			pstmt.setString(1, tempEnroll.getUserId());
-			pstmt.setString(2, tempEnroll.getCourseNumber());
-			pstmt.setInt(3, tempEnroll.getCourseStatus());
+			pstmt.setString(1, tempStatus);
+			pstmt.setInt(2, tempEnrollNo);
 			
 			int result = pstmt.executeUpdate();
 			
@@ -179,12 +174,12 @@ public class EnrollDAO
 		}
 	}
 	
-	public Enroll searchEnroll(String tempCourseNumber, User tempUser)
+	public Enroll searchEnroll(int tempEnrollNo)
 	{
 		Connection conn = getConnection();
 		Enroll tEnroll= new Enroll();
 
-		String searchSQL = "Select * from enroll where courseNumber = "+tempCourseNumber+"";
+		String searchSQL = "Select * from enroll where enrollNo = "+tempEnrollNo+"";
 		
 		Statement stmt = null;
 		
@@ -197,7 +192,8 @@ public class EnrollDAO
 			{
 				tEnroll.setUserId(rSet.getString("userId"));
 				tEnroll.setCourseNumber(rSet.getString("courseNumber"));
-				tEnroll.setCourseStatus(rSet.getInt("courseStatus"));
+				tEnroll.setState(rSet.getString("status"));
+				tEnroll.setEnrollNo(rSet.getInt("enrollNo"));
 			}
 		}catch(SQLException e)
 		{
@@ -209,7 +205,7 @@ public class EnrollDAO
 		return tEnroll;
 	}
 	
-	public ArrayList<Enroll> searchAllEnroll(String tempCourseNumber, User tempUser)
+	public ArrayList<Enroll> searchEnroll(String tempCourseNumber)
 	{
 		ArrayList<Enroll> enrollList = new ArrayList<Enroll>();
 		Connection conn = getConnection();
@@ -228,7 +224,41 @@ public class EnrollDAO
 			{
 				tEnroll.setUserId(rSet.getString("userId"));
 				tEnroll.setCourseNumber(rSet.getString("courseNumber"));
-				tEnroll.setCourseStatus(rSet.getInt("courseStatus"));
+				tEnroll.setState(rSet.getString("status"));
+				tEnroll.setEnrollNo(rSet.getInt("enrollNo"));
+				enrollList.add(tEnroll);
+			}
+		}catch(SQLException e)
+		{
+			e.printStackTrace();
+		} finally
+		{
+			closeConnection(conn);
+		}
+		return enrollList;
+	}
+	
+	public ArrayList<Enroll> searchAllEnrolls()
+	{
+		ArrayList<Enroll> enrollList = new ArrayList<Enroll>();
+		Connection conn = getConnection();
+		Enroll tEnroll= new Enroll();
+	
+		String searchSQL = "Select * from enroll";
+		
+		Statement stmt = null;
+		
+		try
+		{
+			stmt = conn.createStatement();
+			ResultSet rSet = stmt.executeQuery(searchSQL);
+			
+			while(rSet.next())
+			{
+				tEnroll.setUserId(rSet.getString("userId"));
+				tEnroll.setCourseNumber(rSet.getString("courseNumber"));
+				tEnroll.setState(rSet.getString("status"));
+				tEnroll.setEnrollNo(rSet.getInt("enrollNo"));
 				enrollList.add(tEnroll);
 			}
 		}catch(SQLException e)
@@ -246,7 +276,8 @@ public class EnrollDAO
 		Connection conn = getConnection();
 		ArrayList<User> userList= new ArrayList<User>();
 
-		String searchSQL = "Select * from user where courseNumber = "+tempCourseNumber+"";
+		String searchSQL = "Select * from user where userId in"
+				+ " (select userId from enroll where courseNumber = "+tempCourseNumber+"";
 		
 		Statement stmt = null;
 		

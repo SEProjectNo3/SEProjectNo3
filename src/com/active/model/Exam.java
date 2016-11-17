@@ -1,5 +1,4 @@
 package com.active.model;
-import java.util.ArrayList;
 
 public class Exam 
 {
