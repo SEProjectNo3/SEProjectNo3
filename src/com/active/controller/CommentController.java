@@ -41,20 +41,4 @@ public class CommentController extends HttpServlet {
 		doGet(request, response);
 	}
 
-	public ArrayList<Comment> searchComment(String tempLectureId, String tempWriter)
-	{
-		
-	}
-	public boolean deleteComment(String tempLectureId, String tempWriter, int tempCommentNo)
-	{
-		
-	}
-	public boolean updateComment(String tempLectureId, String tempWriter, int tempCommentNo)
-	{
-		
-	}
-	public boolean insertcomment(String tempLectureId)
-	{
-		
-	}
 }

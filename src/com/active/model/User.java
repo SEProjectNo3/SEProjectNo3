@@ -1,7 +1,6 @@
 package com.active.model;
 
-public class User
-{
+public class User {
 	private String userId;
 	private String pwd;
 	private String userName;
@@ -53,4 +52,3 @@ public class User
 		this.userType = userType;
 	}
 }
-

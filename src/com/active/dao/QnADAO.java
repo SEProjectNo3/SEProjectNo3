@@ -1,10 +1,14 @@
 package com.active.dao;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+
+import com.active.model.QnA;
+import com.active.model.Response;
 
 public class QnADAO 
 {
@@ -64,11 +68,11 @@ public class QnADAO
 		}
 	}
 	
-	public boolean insertQuestion(String tempQuestion, String tempWriter, DateTime tempTime)
+	public boolean insertQuestion(String tempQuestion, String tempWriter, Date tempTime)
 	{
 		Connection conn = getConnection();
 		
-		String insertSQL = "Insert Into Question(questionNo,question,writer,writeTime,courseNumber)"
+		String insertSQL = "Insert Into Question(question,writer,writeTime,courseNumber)"
 				+ "Values(?,?,?,?,?)";
 		
 		PreparedStatement pstmt = null;

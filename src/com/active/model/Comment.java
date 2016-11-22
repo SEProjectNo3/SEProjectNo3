@@ -1,12 +1,13 @@
 package com.active.model;
 import java.sql.Date;
 
-public class Comment 
-{
+public class Comment {
+	
 	private int commentNo;
 	private String writer;
 	private String content;
 	private Date writeTime;
+	private String letureId;
 	
 	public int getCommentNo() {
 		return commentNo;
@@ -32,5 +33,10 @@ public class Comment
 	public void setWriteTime(Date writeTime) {
 		this.writeTime = writeTime;
 	}
-	
+	public String getLetureId() {
+		return letureId;
+	}
+	public void setLetureId(String letureId) {
+		this.letureId = letureId;
+	}
 }
