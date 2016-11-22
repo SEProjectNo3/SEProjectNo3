@@ -1,10 +1,12 @@
 package com.active.dao;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
@@ -68,48 +70,39 @@ public class ReviewDAO
 		}
 	}
 	
-	public boolean insertReview(Review tempReview)
-	{
+	public boolean insertReview(Review tempReview) {
 		Connection conn = getConnection();
 		
-		String insertSQL = "Insert Into Review(reviewNo,writer,content,rate,time,courseNumber)"
-				+ " Values(?,?,?,?,?,?)";
+		String insertSQL = "Insert Into Review(writer,content,rate,courseNumber)"
+				+ " Values(?,?,?,?)";
 		
 		PreparedStatement pstmt = null;
 		
-		try
-		{
+		try {
 			pstmt = conn.prepareStatement(insertSQL);
 			
-			pstmt.setInt(1, tempReview.getReviewNo());
-			pstmt.setString(2, tempReview.getWriter());
-			pstmt.setString(3, tempReview.getContent());
-			pstmt.setInt(4, tempReview.getRate());
-			pstmt.setDate(5, tempReview.getTime());
-			pstmt.setString(6, tempReview.getCourseNumber());
+			pstmt.setString(1, tempReview.getWriter());
+			pstmt.setString(2, tempReview.getContent());
+			pstmt.setInt(3, tempReview.getRate());
+			pstmt.setString(4, tempReview.getCourseNumber());
 			
 			int result = pstmt.executeUpdate();
 			
 			if(result>0)
-			{
 				return true;
-			}
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
 	}
 	
-	public boolean deleteReview(int tempReviewNo)
-	{
+	public boolean deleteReview(int tempReviewNo) {
+		
 		Connection conn = getConnection();
 		
 		String deleteSQL = "delete from review where reviewNo = ?";
@@ -142,54 +135,99 @@ public class ReviewDAO
 		}
 	}
 	
-	public boolean updateReview(String tempContent, String tempRate, int tempReviewNo)
-	{
+	public boolean updateReview(int tempReviewNo, String tempContent, int tempRate) {
+		
 		Connection conn = getConnection();
 		
-		String updateSQL = "update review set content = ?, rate = ? where reviewNo = ?";
+		String updateSQL = "update review set content = ?, rate = ?, writeTime = ? where reviewNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
-		try
-		{
+		try {
+
 			pstmt = conn.prepareStatement(updateSQL);
 			
 			pstmt.setString(1, tempContent);
-			pstmt.setString(2, tempRate);
-			pstmt.setInt(3, tempReviewNo);
+			pstmt.setInt(2, tempRate);
+			
+			Date date = new Date(System.currentTimeMillis());
+			//SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+			//String strNow = sdfNow.format(date);
+			
+			pstmt.setDate(3, date);
+			pstmt.setInt(4, tempReviewNo);
 			
 			int result = pstmt.executeUpdate();
 			
 			if(result>0)
-			{
 				return true;
-			}
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
 	}
 	
-	public ArrayList<Review> searchReview(String tempCourseNumber)
-	{
-		ArrayList<Review> reviewList = new ArrayList<Review>();
+	/**
+	 * 해당 강의에 해당하는 모든 강의평가 가져오는 함수. (학수번호로 검색)
+	 * @param tempCourseNumber
+	 * @return
+	 */
+	public ArrayList<Review> searchReview(String tempCourseNumber) {
 		Connection conn = getConnection();
+		
+		ArrayList<Review> reviewList = new ArrayList<Review>();
 		Review tReview= new Review();
 
-		String searchSQL = "Select * from review where courseNumber = "+tempCourseNumber+"";
+		String searchSQL = "Select * from review where courseNumber LIKE '%" + tempCourseNumber + "%'" ;
 		
 		Statement stmt = null;
 		
 		try
 		{
+			stmt = conn.createStatement();
+			ResultSet rSet = stmt.executeQuery(searchSQL);
+			
+			while(rSet.next()) {
+				tReview.setReviewNo(rSet.getInt("reviewNo"));
+				tReview.setWriter(rSet.getString("writer"));
+				tReview.setContent(rSet.getString("content"));
+				tReview.setRate(rSet.getInt("rate"));
+				tReview.setTime(rSet.getDate("writeTime"));
+				tReview.setCourseNumber(rSet.getString("courseNumber"));
+				
+				reviewList.add(tReview);
+			}
+			
+			return reviewList;
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			closeConnection(conn);
+		}
+	}
+	
+	/**
+	 * 작성자로 강의평가 검색
+	 * @param tempWriter
+	 * @return
+	 */
+	public ArrayList<Review> searchWriterReview(String tempWriter) {
+		
+		Connection conn = getConnection();
+		
+		ArrayList<Review> reviewList = new ArrayList<Review>();
+		Review tReview= new Review();
+
+		String searchSQL = "Select * from review where writer LIKE '%" + tempWriter + "%'";
+		
+		Statement stmt = null;
+		
+		try {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
@@ -199,52 +237,20 @@ public class ReviewDAO
 				tReview.setWriter(rSet.getString("writer"));
 				tReview.setContent(rSet.getString("content"));
 				tReview.setRate(rSet.getInt("rate"));
-				tReview.setTime(rSet.getDate("time"));
+				tReview.setTime(rSet.getDate("writeTime"));
 				tReview.setCourseNumber(rSet.getString("courseNumber"));
+				
 				reviewList.add(tReview);
 			}
-		}catch(SQLException e)
-		{
-			e.printStackTrace();
-		} finally
-		{
-			closeConnection(conn);
-		}
-		return reviewList;
-	}
-	
-	public ArrayList<Review> searchWriterReview(String tempWriter)
-	{
-		ArrayList<Review> reviewList = new ArrayList<Review>();
-		Connection conn = getConnection();
-		Review tReview= new Review();
-
-		String searchSQL = "Select * from review where writer = "+tempWriter+"";
-		
-		Statement stmt = null;
-		
-		try
-		{
-			stmt = conn.createStatement();
-			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next())
-			{
-				tReview.setReviewNo(rSet.getInt("reviewNo"));
-				tReview.setWriter(rSet.getString("writer"));
-				tReview.setContent(rSet.getString("content"));
-				tReview.setRate(rSet.getInt("rate"));
-				tReview.setTime(rSet.getDate("time"));
-				tReview.setCourseNumber(rSet.getString("courseNumber"));
-				reviewList.add(tReview);
-			}
-		}catch(SQLException e)
-		{
+			return reviewList;
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
-		} finally
-		{
+			return null;
+			
+		} finally {
 			closeConnection(conn);
 		}
-		return reviewList;
 	}
 }

@@ -11,8 +11,7 @@ import java.util.ResourceBundle;
 import com.active.model.Comment;
 
 
-public class CommentDAO 
-{
+public class CommentDAO {
 	/*
 	 * It is a class that has the only one object by using singleton object pattern
 	 * DAO means that it is database access object
@@ -21,27 +20,22 @@ public class CommentDAO
 	private static CommentDAO commentDao; 
 	private static ResourceBundle bundle;
 	
-	static
-	{
+	static {
 		bundle = ResourceBundle.getBundle("config/jdbc");
 	}
 	
-	public static synchronized CommentDAO getInstance()
-	{
+	public static synchronized CommentDAO getInstance() {
 		if(commentDao == null)
 			commentDao = new CommentDAO();
 		
 		return commentDao;	
 	}
 	
-	private CommentDAO()
-	{
-		try
-		{
+	private CommentDAO() {
+		try {
 			//DriverManager에 등록
 			Class.forName(bundle.getString("driver"));
-		}catch(Exception e)
-		{
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -49,7 +43,6 @@ public class CommentDAO
 	/*
 	 * Connecting Java Eclipse to our Database
 	 */
-	
 	private Connection getConnection()
 	{
 		try
@@ -69,8 +62,7 @@ public class CommentDAO
 	 * Disconnecting Java Eclipse to our Database. 
 	 */
 	
-	private void closeConnection(Connection conn)
-	{
+	private void closeConnection(Connection conn) {
 		try
 		{
 			if(conn != null)
@@ -81,58 +73,51 @@ public class CommentDAO
 		}
 	}
 		
-	/*
+	/**
 	 * Insert values into comment table in the Database
 	 * This method makes character string query to insert values into the database
+	 * @param tempComment
+	 * @return
 	 */
-	public boolean insertComment(Comment tempComment,String tempLectureId)
-	{	
+	public boolean insertComment(Comment tempComment) {
+		
 		Connection conn = getConnection(); 
 		
-		String insertSQL = "Insert Into Comment(commentNo,writer,content,writeTime,lectureId)"
-				+ " Values(?,?,?,?,?)";
+		String insertSQL = "Insert Into Comment(writer,content, lectureId) Values(?,?,?)";
 		
 		PreparedStatement pstmt = null;
 		
-		try
-		{
+		try {
 			pstmt = conn.prepareStatement(insertSQL);
 			
-			pstmt.setInt(1, tempComment.getCommentNo());
-			pstmt.setString(2, tempComment.getWriter());
-			pstmt.setString(3, tempComment.getContent());
-			pstmt.setDate(4, tempComment.getWriteTime());
-			pstmt.setString (5, tempLectureId);
+			pstmt.setString(1, tempComment.getWriter());
+			pstmt.setString(2, tempComment.getContent());
+			pstmt.setString (3, tempComment.getLetureId());
 			
 			int result = pstmt.executeUpdate();
 			
 			if(result>0)
-			{
 				return true;
-			}
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+		
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally {
 			closeConnection(conn);
 		}
 	}
 	
-	public boolean deleteComment(int tempCommentNo)
-	{
+	public boolean deleteComment(int tempCommentNo) {
+		
 		Connection conn = getConnection();
 		
 		String deleteSQL = "Delete from comment where commentNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
-		try{
+		try {
 			pstmt = conn.prepareStatement(deleteSQL);
 			
 			pstmt.setInt(1, tempCommentNo);
@@ -140,36 +125,34 @@ public class CommentDAO
 			int result = pstmt.executeUpdate();
 			
 			if(result>0)
-			{
 				return true;
-			}
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
-
 	}
-	public boolean updateComment(int tempCommentNo, String tempContent)
-	{
+	
+	// 현재 시간 적용!!
+	public boolean updateComment(int tempCommentNo, String tempContent) {
+		
 		Connection conn = getConnection();
 		
-		String updateSQL = "update comment set content = ? where commentNo = ?";
+		String updateSQL = "update comment set content = ?, writeTime = ? where commentNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
-		try{
+		try {
+			
 			pstmt = conn.prepareStatement(updateSQL);
 			
 			pstmt.setString(1, tempContent);
-			pstmt.setInt(2, tempCommentNo);
+			//pstmt.setTime(2, x); // 현재 시간 적용 필요
+			pstmt.setInt(3, tempCommentNo);
 			
 			int result = pstmt.executeUpdate();
 			
@@ -181,112 +164,127 @@ public class CommentDAO
 			{
 				return false;
 			}
-		}catch(SQLException e)
-		{
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
 	}
 	
-	public ArrayList<Comment> searchCommentLecture(String tempLectureId)
-	{
-		ArrayList<Comment> commentList = new ArrayList<Comment>();
+	/**
+	 * 현재 강좌에 대한 댓글 가져오는 메소드
+	 * @param tempLectureId
+	 * @return
+	 */
+	public ArrayList<Comment> searchCommentLecture(String tempLectureId) {
+		
 		Connection conn = getConnection();
+		
+		ArrayList<Comment> commentList = new ArrayList<Comment>();
 		Comment tComment = new Comment();
 		
-		String searchSQL = "Select * from comment where lectureId = "+tempLectureId+"";
+		String searchSQL = "Select * from comment where lectureId = '" + tempLectureId + "'";
 		
 		Statement stmt = null;
 		
-		try
-		{
+		try {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next())
-			{
+			while(rSet.next()) {
+				
 				tComment.setCommentNo(rSet.getInt("commentNo"));
 				tComment.setWriter(rSet.getString("writer"));
 				tComment.setContent(rSet.getString("content"));
 				tComment.setWriteTime(rSet.getDate("writeTime"));
+				tComment.setLetureId(rSet.getString("lecturdId"));
+				
 				commentList.add(tComment);
 			}
-		}catch(SQLException e)
-		{
+			
+			return commentList;
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
-		} finally
-		{
+			return null;
+			
+		} finally {
 			closeConnection(conn);
 		}
-		return commentList;
 	}
 	
-	public ArrayList<Comment> searchCommentWriter(String tempWriter)
-	{
-		ArrayList<Comment> commentList = new ArrayList<Comment>();
+	/**
+	 * 댓글 작성자로 comment 찾기
+	 * @param tempWriter
+	 * @return
+	 */
+	public ArrayList<Comment> searchCommentWriter(String tempWriter) {
+		
 		Connection conn = getConnection();
+		
+		ArrayList<Comment> commentList = new ArrayList<Comment>();
 		Comment tComment = new Comment();
 
-		String searchSQL = "Select * from comment where writer = "+tempWriter+"";
+		String searchSQL = "Select * from comment where writer LIKE '%" + tempWriter + "%'";
 		
 		Statement stmt = null;
 		
-		try
-		{
+		try {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next())
-			{
+			while(rSet.next()) {
 				tComment.setCommentNo(rSet.getInt("commentNo"));
 				tComment.setWriter(rSet.getString("writer"));
 				tComment.setContent(rSet.getString("content"));
 				tComment.setWriteTime(rSet.getDate("writeTime"));
+				tComment.setLetureId(rSet.getString("lecturdId"));
 				commentList.add(tComment);
 			}
-		}catch(SQLException e)
-		{
+			
+			return commentList;
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
-		} finally
-		{
+			return null;
+			
+		} finally {
 			closeConnection(conn);
 		}
-		return commentList;
 	}
 	
-	public ArrayList<Comment> searchAllComment()
-	{
-		ArrayList<Comment> commentList = new ArrayList<Comment>();
+	public ArrayList<Comment> searchAllComments() {
+		
 		Connection conn = getConnection();
+		
+		ArrayList<Comment> commentList = new ArrayList<Comment>();
 		Comment tComment = new Comment();
 
 		String searchSQL = "Select * from comment";
 		
 		Statement stmt = null;
 		
-		try
-		{
+		try {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next())
-			{
+			while(rSet.next()) {
 				tComment.setCommentNo(rSet.getInt("commentNo"));
 				tComment.setWriter(rSet.getString("writer"));
 				tComment.setContent(rSet.getString("content"));
 				tComment.setWriteTime(rSet.getDate("writeTime"));
+				tComment.setLetureId(rSet.getString("lecturdId"));
 				commentList.add(tComment);
 			}
-		}catch(SQLException e)
-		{
+			
+			return commentList;
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
-		} finally
-		{
+			return null;
+		} finally {
 			closeConnection(conn);
 		}
-		return commentList;
 	}
 }
