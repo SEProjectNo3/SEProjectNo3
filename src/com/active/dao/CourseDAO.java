@@ -1,4 +1,5 @@
 package com.active.dao;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -10,152 +11,127 @@ import java.util.ResourceBundle;
 
 import com.active.model.Course;
 
-public class CourseDAO 
-{
+public class CourseDAO {
 	private static CourseDAO courseDao;
 	private static ResourceBundle bundle;
 	
-	static
-	{
+	static {
 		bundle = ResourceBundle.getBundle("config/jdbc");
 	}
 	
-	public static synchronized CourseDAO getInstance()
-	{
+	public static synchronized CourseDAO getInstance() {
 		if(courseDao == null)
 			courseDao = new CourseDAO();
 		
 		return courseDao;	
 	}
 	
-	private CourseDAO()
-	{
-		try
-		{
+	private CourseDAO() {
+		try {
 			//DriverManager에 등록
 			Class.forName(bundle.getString("driver"));
-		}catch(Exception e)
-		{
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private Connection getConnection()
-	{
-		try
-		{
+	private Connection getConnection() {
+		try {
 			// DriverManager 객체로부터 Connection 객체를 얻어온다.
-			Connection conn = DriverManager.getConnection(bundle.getString("url")
-					,bundle.getString("user_id"),bundle.getString("user_pwd"));
+			Connection conn = DriverManager.getConnection(bundle.getString("url"), bundle.getString("user_id"),bundle.getString("user_pwd"));
 			return conn;
-		}catch(Exception e)
-		{
+			
+		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	private void closeConnection(Connection conn)
-	{
-		try
-		{
+	private void closeConnection(Connection conn) {
+		try {
 			if(conn != null)
 				conn.close();
-		}catch(Exception e)
-		{
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public boolean insertCourse(Course tempCourse)
-	{
+	public boolean insertCourse(Course tempCourse) {
+		
 		Connection conn = getConnection();
 		
-		String insertSQL = "Insert Into Course(courseNumber,courseName,studentCount,major,professor)"
-				+ " Values(?,?,?,?,?)";
+		String insertSQL = "Insert Into Course(courseNumber,courseName,major,professor)"
+						+ " Values(?,?,?,?)";
 		
 		PreparedStatement pstmt = null;
 		
-		try
-		{
+		try {
+			
 			pstmt = conn.prepareStatement(insertSQL);
 			
 			pstmt.setString(1, tempCourse.getCourseNumber());
 			pstmt.setString(2, tempCourse.getCourseName());
-			pstmt.setInt(3, tempCourse.getStudentCount());
-			pstmt.setString(4, tempCourse.getMajor());
-			pstmt.setString (5, tempCourse.getProfessor());
+			//pstmt.setInt(3, tempCourse.getStudentCount());
+			pstmt.setString(3, tempCourse.getMajor());
+			pstmt.setString (4, tempCourse.getProfessor());
 			
 			int result = pstmt.executeUpdate();
 			
 			if(result>0)
-			{
 				return true;
-			}
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+		
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
-		
 	}
-	public boolean deleteCourse(String tempCourseNumber)
-	{
+	
+	public boolean deleteCourse(String tempCourseNumber) {
+		
 		Connection conn = getConnection();
 		
 		String deleteSQL = "delete from course where courseNumber = ?";
 		
 		PreparedStatement pstmt = null;
 		
-		try
-		{
-			pstmt = conn.prepareStatement(deleteSQL);
+		try {
 			
+			pstmt = conn.prepareStatement(deleteSQL);
 			pstmt.setString(1, tempCourseNumber);
 			
 			int result = pstmt.executeUpdate();
 			
 			if(result>0)
-			{
 				return true;
-			}
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+		
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
-		
 	}
 	
 	/*
 	 * This method replaces name and professor of course with what users want to change
 	 * When users fill out mistakenly the information of courses, they can modify them
 	 */
-	public boolean updateCourse(String tempCourseNumber, String tempCourseName, String tempProfessor, String tempStudentCount, String tempMajor)
-	{
+	public boolean updateCourse(String tempCourseNumber, String tempCourseName, String tempProfessor, String tempStudentCount, String tempMajor) {
+		
 		Connection conn = getConnection();
 		
-		String updateSQL = "update course set courseName = ? , professor = ? ,studentCount = ?, major = ?"
+		String updateSQL = "update COURSE set courseName = ? , professor = ? ,studentCount = ?, major = ?"
 				+ " where courseNumber = ?";
 		
 		PreparedStatement pstmt = null;
 		
-		try
-		{
+		try {
 			pstmt = conn.prepareStatement(updateSQL);
 			
 			pstmt.setString(1, tempCourseName);
@@ -167,155 +143,175 @@ public class CourseDAO
 			int result = pstmt.executeUpdate();
 			
 			if(result>0)
-			{
 				return true;
-			}
+			
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
-		
 	}
 	
-	public ArrayList<Course> searchCourseProfessor(String tempProfessor)
-	{
+	/**
+	 * 교원명으로 검색, search course with professor
+	 * @param tempProfessor
+	 * @return course included tempProfessor
+	 */
+	public ArrayList<Course> searchCourseProfessor(String tempProfessor) {
+		
+		Connection conn = getConnection();
 		ArrayList<Course> courseList = new ArrayList<Course>();
-		Connection conn = getConnection();
 		
-		String searchSQL = "Select * from course where professor = "+tempProfessor+"";
-		
-		Statement stmt = null;
-		
-		try
-		{
-			stmt = conn.createStatement();
-			ResultSet rSet = stmt.executeQuery(searchSQL);
-			
-			while(rSet.next())
-			{
-				Course tCourse= new Course();
-				tCourse.setCourseNumber(rSet.getString("courseNumber"));
-				tCourse.setCourseName(rSet.getString("courseName"));
-				tCourse.setStudentCount(rSet.getInt("studentCount"));
-				tCourse.setMajor(rSet.getString("major"));
-				tCourse.setProfessor(rSet.getString("professor"));
-				courseList.add(tCourse);
-			}
-		}catch(SQLException e)
-		{
-			e.printStackTrace();
-		} finally
-		{
-			closeConnection(conn);
-		}
-		return courseList;
-	}
-	
-	public Course searchCourseNumber(String tempCourseNumber)
-	{
-		Connection conn = getConnection();
-		Course tCourse= new Course();
-		
-		String searchSQL = "Select * from course where courseNumber = "+tempCourseNumber+"";
+		String searchSQL = "Select * from COURSE where professor IN "
+						+ "(SELECT userId FROM USER WHERE USERTYPE = 1 AND USERNAME LIKE '%" + tempProfessor + "%')";
 		
 		Statement stmt = null;
 		
-		try
-		{
+		try {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next())
-			{
-				tCourse.setCourseNumber(rSet.getString("courseNumber"));
-				tCourse.setCourseName(rSet.getString("courseName"));
-				tCourse.setStudentCount(rSet.getInt("studentCount"));
-				tCourse.setMajor(rSet.getString("major"));
-				tCourse.setProfessor(rSet.getString("professor"));
+			while(rSet.next()) {
+				Course course= new Course();
+				course.setCourseNumber(rSet.getString("courseNumber"));
+				course.setCourseName(rSet.getString("courseName"));
+				course.setStudentCount(rSet.getInt("studentCount"));
+				course.setMajor(rSet.getString("major"));
+				course.setProfessor(rSet.getString("professor"));
+				courseList.add(course);
 			}
-		}catch(SQLException e)
-		{
+			
+			return courseList;
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
-		} finally
-		{
+			return null;
+		} finally {
 			closeConnection(conn);
 		}
-		return tCourse;
 	}
 	
-	public ArrayList<Course> searchCourseName(String tempCourseName)
-	{
+	/**
+	 * 학수번호로 검색, search course with courseNumber
+	 * @param tempCourseNumber
+	 * @return course included tempCourseNumber
+	 */
+	public ArrayList<Course> searchCourseNumber(String tempCourseNumber) {
+		
+		Connection conn = getConnection();
+
+		Course course= new Course();
 		ArrayList<Course> courseList = new ArrayList<Course>();
-		Connection conn = getConnection();
 		
-		String searchSQL = "Select * from course where courseName = "+tempCourseName+"";
+		String searchSQL = "Select * from COURSE where courseNumber LIKE '%" + tempCourseNumber + "%'";
 		
 		Statement stmt = null;
 		
-		try
-		{
+		try {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next())
-			{
-				Course tCourse= new Course();
-				tCourse.setCourseNumber(rSet.getString("courseNumber"));
-				tCourse.setCourseName(rSet.getString("courseName"));
-				tCourse.setStudentCount(rSet.getInt("studentCount"));
-				tCourse.setMajor(rSet.getString("major"));
-				tCourse.setProfessor(rSet.getString("professor"));
-				courseList.add(tCourse);
+			while(rSet.next()) {
+				
+				course.setCourseNumber(rSet.getString("courseNumber"));
+				course.setCourseName(rSet.getString("courseName"));
+				course.setStudentCount(rSet.getInt("studentCount"));
+				course.setMajor(rSet.getString("major"));
+				course.setProfessor(rSet.getString("professor"));
+				courseList.add(course);
 			}
-		}catch(SQLException e)
-		{
+			
+			return courseList;
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
-		} finally
-		{
+			return null;
+			
+		} finally {
 			closeConnection(conn);
 		}
-		return courseList;
 	}
 	
-	public ArrayList<Course> searchAllCourse()
-	{
-		ArrayList<Course> courseList = new ArrayList<Course>();
+	/**
+	 * 강의명으로 검색, search course with courseName
+	 * @param tempCourseName
+	 * @return course included tempCourseName
+	 */
+	public ArrayList<Course> searchCourseName(String tempCourseName) {
+		
 		Connection conn = getConnection();
-	
-		String searchSQL = "Select * from course;";
+		
+		ArrayList<Course> courseList = new ArrayList<Course>();
+		
+		String searchSQL = "Select * from course where courseName LIKE '%" + tempCourseName + "%'";
 		
 		Statement stmt = null;
 		
-		try
-		{
+		try {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next())
-			{
-				Course tCourse= new Course();
-				tCourse.setCourseNumber(rSet.getString("courseNumber"));
-				tCourse.setCourseName(rSet.getString("courseName"));
-				tCourse.setStudentCount(rSet.getInt("studentCount"));
-				tCourse.setMajor(rSet.getString("major"));
-				tCourse.setProfessor(rSet.getString("professor"));
-				courseList.add(tCourse);
+			while(rSet.next()) {
+				Course course= new Course();
+				course.setCourseNumber(rSet.getString("courseNumber"));
+				course.setCourseName(rSet.getString("courseName"));
+				course.setStudentCount(rSet.getInt("studentCount"));
+				course.setMajor(rSet.getString("major"));
+				course.setProfessor(rSet.getString("professor"));
+				courseList.add(course);
 			}
-		}catch(SQLException e)
-		{
+			
+			return courseList;
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
-		} finally
-		{
+			return null;
+		} finally {
 			closeConnection(conn);
 		}
-		return courseList;
+	}
+	
+	/**
+	 * 모든 강의 검색, search all courses
+	 * @return all course
+	 */
+	public ArrayList<Course> searchAllCourse() {
+		
+		Connection conn = getConnection();
+		
+		ArrayList<Course> courseList = new ArrayList<Course>();
+	
+		String searchSQL = "Select * from COURSE";
+		
+		Statement stmt = null;
+		
+		try	{
+			stmt = conn.createStatement();
+			ResultSet rSet = stmt.executeQuery(searchSQL);
+			
+			while(rSet.next()) {
+				
+				Course course= new Course();
+				course.setCourseNumber(rSet.getString("courseNumber"));
+				course.setCourseName(rSet.getString("courseName"));
+				course.setStudentCount(rSet.getInt("studentCount"));
+				course.setMajor(rSet.getString("major"));
+				course.setProfessor(rSet.getString("professor"));
+				courseList.add(course);
+			}
+			
+			return courseList;
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return null;
+			
+		} finally {
+			closeConnection(conn);
+		}
 	}
 }

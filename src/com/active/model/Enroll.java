@@ -1,5 +1,5 @@
 package com.active.model;
-import java.util.HashMap;
+import com.active.constant.State;
 
 /* It manages user who is registered in course
  * 
@@ -12,8 +12,7 @@ public class Enroll
 	 */
 	private String userId; // Primary key in Database
 	private String courseNumber; // Primary key in Database
-	private String state;
-	private int enrollNo;
+	private State state;
 	
 	public String getUserId() {
 		return userId;
@@ -28,15 +27,9 @@ public class Enroll
 		this.courseNumber = courseNumber;
 	}
 	public String getState() {
-		return state;
+		return state.getstate();
 	}
-	public void setState(String state) {
+	public void setState(State state) {
 		this.state = state;
-	}
-	public int getEnrollNo() {
-		return enrollNo;
-	}
-	public void setEnrollNo(int enrollNo) {
-		this.enrollNo = enrollNo;
 	}
 }

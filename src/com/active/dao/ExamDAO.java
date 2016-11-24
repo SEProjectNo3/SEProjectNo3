@@ -9,111 +9,95 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import com.active.model.Exam;
+import com.active.model.ExamChoice;
+import com.active.model.ExamQuestion;
 
-public class ExamDAO 
-{
+public class ExamDAO {
 	private static ExamDAO examDao;
 	private static ResourceBundle bundle;
 	
-	static
-	{
+	static {
 		bundle = ResourceBundle.getBundle("config/jdbc");
 	}
 	
-	public static synchronized ExamDAO getInstance()
-	{
+	public static synchronized ExamDAO getInstance() {
 		if(examDao == null)
 			examDao = new ExamDAO();
 		
 		return examDao;
 	}
 	
-	private ExamDAO()
-	{
-		try
-		{
+	private ExamDAO() {
+		try {
 			//DriverManager에 등록
 			Class.forName(bundle.getString("driver"));
-		}catch(Exception e)
-		{
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private Connection getConnection()
-	{
-		try
-		{
+	private Connection getConnection() {
+		try {
 			// DriverManager 객체로부터 Connection 객체를 얻어온다.
 			Connection conn = DriverManager.getConnection(bundle.getString("url")
 					,bundle.getString("user_id"),bundle.getString("user_pwd"));
 			return conn;
-		}catch(Exception e)
-		{
+		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	private void closeConnection(Connection conn)
-	{
-		try
-		{
+	private void closeConnection(Connection conn) {
+		try {
 			if(conn != null)
 				conn.close();
-		}catch(Exception e)
-		{
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public boolean insertExam(Exam tempExam)
-	{
+	public boolean insertExam(Exam tempExam) {
+		
 		Connection conn = getConnection();
 		
-		String insertSQL = "Insert Into Exam(examNo,courseNumber,chapter)"
-				+ " Values(?,?,?)";
+		String insertSQL = "Insert Into Exam(courseNumber,chapter) Values(?,?)";
 		
 		PreparedStatement pstmt = null;
 		
-		try
-		{
+		try {
 			pstmt = conn.prepareStatement(insertSQL);
 			
-			pstmt.setInt(1, tempExam.getExamNo());
-			pstmt.setString(2, tempExam.getCourseNumber());
-			pstmt.setInt(3, tempExam.getChapter());
+			pstmt.setString(1, tempExam.getCourseNumber());
+			pstmt.setInt(2, tempExam.getChapter());
 			
 			int result = pstmt.executeUpdate();
 			
-			if(result>0)
-			{
+			if(result>0) {
+				
+				
 				return true;
 			}
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
 	}
 	
-	public boolean deleteExam(int tempExamNo)
-	{
+	public boolean deleteExam(int tempExamNo) {
+		
 		Connection conn = getConnection();
 		
 		String deleteSQL = "delete from exam where examNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
-		try
-		{
+		try {
 			pstmt = conn.prepareStatement(deleteSQL);
 			
 			pstmt.setInt(1, tempExamNo);
@@ -121,19 +105,14 @@ public class ExamDAO
 			int result = pstmt.executeUpdate();
 			
 			if(result>0)
-			{
 				return true;
-			}
 			else
-			{
 				return false;
-			}
-		}catch(SQLException e)
-		{
+			
+		} catch(SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally{
+		} finally{
 			closeConnection(conn);
 		}
 	}
@@ -179,18 +158,20 @@ public class ExamDAO
 		
 	}
 	
-	public ArrayList<Exam> searchAllExams(String tempLectureId, int tempNumber)
-	{
-		ArrayList<Exam> examList = new ArrayList<Exam>();
+	public ArrayList<Exam> searchAllExams(String tempLectureId, int tempNumber) {
+	
 		Connection conn = getConnection();
+		
+		ArrayList<Exam> examList = new ArrayList<Exam>();
+	
 		Exam tExam= new Exam();
 		
-		String searchSQL = "Select * from enroll where lectureId = "+tempLectureId+"";
+		String searchSQL = "Select * from enroll where lectureId = '" + tempLectureId + "'";
 		
 		Statement stmt = null;
 		
-		try
-		{
+		try {
+			
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
@@ -213,6 +194,79 @@ public class ExamDAO
 	
 	public markingExam(String tempLectureId, int tempExamNo)
 	{
+		
+	}
+	
+	public boolean insertExamQuestion(Exam exam, ExamQuestion question, ExamChoice answer) {
+		
+		Connection conn = getConnection();
+		
+		String quesQuery = "INSERT INTO EXAMQUESTION (examQuestionNo, examNo, courseNumber, question, answer)"
+							+ " VALUES (?, ?, ?, ?, ?)";
+		
+		PreparedStatement pstmt = null;
+		
+		try {
+		
+			int examNo = getExamNumber(exam);
+			
+			pstmt = conn.prepareStatement(quesQuery);
+			
+			pstmt.setInt(1, question.getQuestionNo());
+			pstmt.setInt(2, examNo);
+			pstmt.setString(3, exam.getCourseNumber());
+			pstmt.setString(4, question.getQuestion());
+			pstmt.setInt(5, question.getAnswer());
+			
+			int res = pstmt.executeUpdate();
+			
+			if (res > 0) {
+				
+				return true;
+			} 
+			else 
+				return false;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			closeConnection(conn);
+		}
+	}
+	
+	public int getExamNumber(Exam exam) {
+		
+		Connection conn = getConnection();
+		
+		String searchSQL = "SELECT examNo FROM EXAM WHERE COURSENUMBER = ? AND CHAPTER = ?";
+		
+		PreparedStatement pstmt = null;
+		
+		try {
+			
+			pstmt = conn.prepareStatement(searchSQL);
+			
+			pstmt.setString(1, exam.getCourseNumber());
+			pstmt.setInt(2, exam.getChapter());
+			
+			ResultSet rs = pstmt.executeQuery();
+			
+			if (rs.next()) 
+				return rs.getInt("examNo");
+			else 
+				return -1;
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		} finally {
+			closeConnection(conn);
+		}
+	}
+	
+	public boolean insertAnswer(ExamQuestion question, ExamChoice answer) {
+		
 		
 	}
 }
