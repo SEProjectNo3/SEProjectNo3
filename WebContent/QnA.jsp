@@ -33,7 +33,7 @@
 </head>
 
 <body>
-	<jsp:include page="/main-nav.jsp" flush="true" />
+	<jsp:include page="/header.jsp" flush="true" />
 	<jsp:include page="/main-login.jsp" flush="true" />
 
 	<!-- Page Content -->
