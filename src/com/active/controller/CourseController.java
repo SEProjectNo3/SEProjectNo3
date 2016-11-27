@@ -36,21 +36,10 @@ public class CourseController extends HttpServlet {
 		
 		if (cmd == null) {
 			
-			LectureDAO lectureDao = LectureDAO.getInstance();
-			
-			ArrayList<Lecture> list = lectureDao.searchLectureList("cse4036-01");
-			
-			System.out.println(list.get(0).getLectureId());
-			System.out.println(list.get(0).getTitle());
-			System.out.println(list.get(0).getExplanation());
-			System.out.println(list.get(0).getFilePath());
-			System.out.println(list.get(0).getHits());
-			System.out.println(list.get(0).getMaterialList().values());
-			
-			
-		} else if (cmd.equals("search")) {
-			
+		} else if (cmd.equals("search_course")) { // 강의 검색
 			searchCourse(request, response);
+		} else if (cmd.equals("search_lecture")) { // 강의에 해당하는 강좌 가져오기
+			searchLectureList(request, response);
 		}
 	}
 
@@ -58,36 +47,70 @@ public class CourseController extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * 검색창에 검색 조건을 통해 강의 찾는 함수
+	 * @param request
+	 * @param response
+	 */
 	public void searchCourse(HttpServletRequest request, HttpServletResponse response) {
 	
 		CourseDAO courseDao = CourseDAO.getInstance();
 		
-		String condition = request.getParameter("cond");
-		String content = request.getParameter("content");
+		String condition = request.getParameter("cond"); // 조건
+		String content = request.getParameter("content"); // 검색명
 		
 		ArrayList<Course> courseList = new ArrayList<Course>();
 		
-		if (condition.equals("name")) {
+		if (condition.equals("name")) { // 이름으로 검색
 		
 			courseList = courseDao.searchCourseName(content);
 			
-		} else if (condition.equals("number")) {
+		} else if (condition.equals("number")) { // 학수번호로 검색
 			
 			courseList = courseDao.searchCourseNumber(content);
 		
-		} else if (condition.equals("professor")) {
+		} else if (condition.equals("professor")) { // 교수명으로 검색
 			
 			courseList = courseDao.searchCourseProfessor(content);
 		
-		} else {
+		} else { // 조건을 선택하지 않은 경우 모든 강의를 검색
 			
 			courseList = courseDao.searchAllCourse();
 		}
 		
+		// 반환된 courseList를 course_list 에 저장
+		request.setAttribute("course_list", courseList);
+		
+		RequestDispatcher rd = null;
+		rd = request.getRequestDispatcher("course-list.jsp");
+		
 		try {
-			RequestDispatcher rd = null;
+			rd.forward(request, response);
 			
-			rd = request.getRequestDispatcher("");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 검색된 강의 클릭 시, 해당 강의에 포함되는 모든 lecture를 가지고 오는 함수
+	 * @param request
+	 * @param response
+	 */
+	public void searchLectureList(HttpServletRequest request, HttpServletResponse response) { 
+		
+		String courseNumber = request.getParameter("course_number");
+		
+		LectureDAO lectureDao = LectureDAO.getInstance();
+		
+		ArrayList<Lecture> lectureList = lectureDao.searchLectureList(courseNumber);
+		
+		request.setAttribute("lecture_list", lectureList);
+		
+		RequestDispatcher rd = null;
+		rd = request.getRequestDispatcher("course.jsp");
+		
+		try {
 			rd.forward(request, response);
 			
 		} catch (Exception e) {
