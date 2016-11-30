@@ -79,10 +79,6 @@ public class UserDAO {
 	    	pstmt.setString(4, user.getPhone());  
 	    	pstmt.setString(5, user.getEmail());  
 	    	pstmt.setString(6, user.getMajor());
-	    	  
-	    	// user Type check
-	    	// if type == 0 : student
-	    	// if type == 1 : professor
 	    	pstmt.setInt(7, user.getUserType());  
     	  
 	    	int result = pstmt.executeUpdate();

@@ -1,8 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@page import="java.util.*"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="java.util.*"%>
+<%@ page import="com.active.constant.*" %>
 <%
 	request.setCharacterEncoding("UTF-8");
+	request.getParameter("course_list");
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,63 +28,78 @@
 
 </head>
 
+<script>
+
+function onSearch(courseNumber) {
+
+	location.href='Course.do?cmd=search_lecture';
+}
+
+</script>
+
 <body>
 	<jsp:include page="/header.jsp" flush="true" />
 	<jsp:include page="/main-login.jsp" flush="true" />
 	
-<center>
-<br> <br>
-		<h2>강좌목록</h2>
-	</center>
+	<h2 align="center">강좌목록</h2>
+
 	<div class="container-fluid">
 
 		<hr>
-
 		<div class="row-fluid">
-			<div class="col-sm-4"></div>
-			<div class="col-sm-6">
-				<div class="col-md-8">
-					<span class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span class="pull-right">최은만</span>
-					<p>소프트웨어공학</p>
-
-					<hr>
-
-					<span class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star-empty"></span> <span
-						class="pull-right">장태무</span>
-					<p>컴퓨터구조</p>
-
-					<hr>
-
-					<span class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star-empty"></span> <span
-						class="pull-right"> 안종석</span>
-					<p>데이터통신입문</p>
-					
-					<hr>
-
-					<span class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star"></span> <span
-						class="glyphicon glyphicon-star-empty"></span> <span
-						class="pull-right"> 김신우</span>
-					<p>웹프로그래밍</p>
-				</div>
+			<div class="col-sm-2"></div>
+			<div class="col-sm-8">
+				<!-- 검색을 통해 나온 강의의 목록을 보여주는 부분 -->
+				<c:if test = "${course_list != null }" >
+				<c:forEach var="course" items="${course_list }">
+		
+					<table onclick="location.href='Course.do?cmd=search_lecture&number=${course.courseNumber}'" style="cursor:hand; width:100%; height:100px; margin:2%">
+						<tr>
+							<td colspan="5" style="font-weight:bold">${course.courseName }</td>
+						</tr>
+						<tr>
+							<td width="120px">${course.professorName }</td>
+							<td colspan="3">
+							<c:forEach varStatus="i" begin="1" end="${Constants.MAX_RATE }">
+								<c:choose>
+									<c:when test="${course.rate >= i.index}">
+										<span class="glyphicon">
+											<img src="css/star/star-gold32.png" width="18px" height="50%">
+										</span>
+									</c:when>
+									
+									<c:otherwise>
+										<span class="glyphicon">
+											<img src="css/star/star-white32.png" width="18px" height="50%">
+										</span>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+							</td>
+							<td width="80px">
+								<form action="Enroll.do" method="post">
+									<input type="hidden" name="cmd" value="enroll_proc"> 
+									<input type="hidden" name="courseNumber" value="${course.courseNumber}">
+									<input type="submit" class="btn btn-success" value="수강하기" />
+							 	</form>
+							</td>
+						</tr>
+					 
+						<tr style="border-bottom:2px solid #C3C3C3">
+							<td rowspan="2" colspan="4">
+								<h6>${course.explanation }</h6>
+							</td>
+							<td rowspan="2"></td>
+						</tr>
+					</table>
+				</c:forEach>
+				</c:if>      			              		
 			</div>
-		</div>
+				<div class="col-sm-2"></div>
+			</div>
+			
 	</div>
-	<hr>
+
 	<jsp:include page="/footer.jsp" flush="true" />
 	
 		<!-- jQuery -->

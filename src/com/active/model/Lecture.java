@@ -7,6 +7,7 @@ public class Lecture
 	private String lectureId;
 	private String title;
 	private String explanation;
+	private String chapter;
 	private LinkedHashMap<String, String> materialList;
 	private String filePath;
 	private int hits;
@@ -35,6 +36,14 @@ public class Lecture
 		this.explanation = explanation;
 	}
 	
+	public String getChapter() {
+		return chapter;
+	}
+
+	public void setChapter(String chapter) {
+		this.chapter = chapter;
+	}
+
 	public LinkedHashMap<String, String> getMaterialList() {
 		return materialList;
 	}

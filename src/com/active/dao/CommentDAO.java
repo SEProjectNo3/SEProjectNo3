@@ -1,5 +1,6 @@
 package com.active.dao;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -83,7 +84,7 @@ public class CommentDAO {
 		
 		Connection conn = getConnection(); 
 		
-		String insertSQL = "Insert Into Comment(writer,content, lectureId) Values(?,?,?)";
+		String insertSQL = "Insert Into Comments(writer,content, lectureId) Values(?,?,?)";
 		
 		PreparedStatement pstmt = null;
 		
@@ -92,7 +93,7 @@ public class CommentDAO {
 			
 			pstmt.setString(1, tempComment.getWriter());
 			pstmt.setString(2, tempComment.getContent());
-			pstmt.setString (3, tempComment.getLetureId());
+			pstmt.setString (3, tempComment.getLectureId());
 			
 			int result = pstmt.executeUpdate();
 			
@@ -113,7 +114,7 @@ public class CommentDAO {
 		
 		Connection conn = getConnection();
 		
-		String deleteSQL = "Delete from comment where commentNo = ?";
+		String deleteSQL = "Delete from comments where commentNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -142,7 +143,7 @@ public class CommentDAO {
 		
 		Connection conn = getConnection();
 		
-		String updateSQL = "update comment set content = ?, writeTime = ? where commentNo = ?";
+		String updateSQL = "update comments set content = ?, writeTime = ? where commentNo = ?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -152,7 +153,10 @@ public class CommentDAO {
 			
 			pstmt.setString(1, tempContent);
 			//pstmt.setTime(2, x); // 현재 시간 적용 필요
+			Date date = new Date(System.currentTimeMillis());
+			pstmt.setDate(2, date);
 			pstmt.setInt(3, tempCommentNo);
+			
 			
 			int result = pstmt.executeUpdate();
 			
@@ -182,9 +186,8 @@ public class CommentDAO {
 		Connection conn = getConnection();
 		
 		ArrayList<Comment> commentList = new ArrayList<Comment>();
-		Comment tComment = new Comment();
-		
-		String searchSQL = "Select * from comment where lectureId = '" + tempLectureId + "'";
+				
+		String searchSQL = "Select * from comments where lectureId = '" + tempLectureId + "'";
 		
 		Statement stmt = null;
 		
@@ -192,13 +195,14 @@ public class CommentDAO {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next()) {
-				
+			while(rSet.next()) 
+			{
+				Comment tComment = new Comment();
 				tComment.setCommentNo(rSet.getInt("commentNo"));
 				tComment.setWriter(rSet.getString("writer"));
 				tComment.setContent(rSet.getString("content"));
 				tComment.setWriteTime(rSet.getDate("writeTime"));
-				tComment.setLetureId(rSet.getString("lecturdId"));
+				tComment.setLectureId(rSet.getString("lectureId"));
 				
 				commentList.add(tComment);
 			}
@@ -226,7 +230,7 @@ public class CommentDAO {
 		ArrayList<Comment> commentList = new ArrayList<Comment>();
 		Comment tComment = new Comment();
 
-		String searchSQL = "Select * from comment where writer LIKE '%" + tempWriter + "%'";
+		String searchSQL = "Select * from comments where writer LIKE '%" + tempWriter + "%'";
 		
 		Statement stmt = null;
 		
@@ -239,7 +243,7 @@ public class CommentDAO {
 				tComment.setWriter(rSet.getString("writer"));
 				tComment.setContent(rSet.getString("content"));
 				tComment.setWriteTime(rSet.getDate("writeTime"));
-				tComment.setLetureId(rSet.getString("lecturdId"));
+				tComment.setLectureId(rSet.getString("lecturdId"));
 				commentList.add(tComment);
 			}
 			
@@ -261,7 +265,7 @@ public class CommentDAO {
 		ArrayList<Comment> commentList = new ArrayList<Comment>();
 		Comment tComment = new Comment();
 
-		String searchSQL = "Select * from comment";
+		String searchSQL = "Select * from comments";
 		
 		Statement stmt = null;
 		
@@ -274,7 +278,7 @@ public class CommentDAO {
 				tComment.setWriter(rSet.getString("writer"));
 				tComment.setContent(rSet.getString("content"));
 				tComment.setWriteTime(rSet.getDate("writeTime"));
-				tComment.setLetureId(rSet.getString("lecturdId"));
+				tComment.setLectureId(rSet.getString("lecturdId"));
 				commentList.add(tComment);
 			}
 			

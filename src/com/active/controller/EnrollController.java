@@ -3,6 +3,7 @@ package com.active.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,7 +24,7 @@ import com.active.model.User;
 /**
  * Servlet implementation class EnrollController
  */
-@WebServlet("/EnrollController")
+@WebServlet("/Enroll.do")
 public class EnrollController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -49,48 +50,53 @@ public class EnrollController extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		request.setCharacterEncoding("utf-8");
-		
 		String cmd = request.getParameter("cmd");
+		
 		if(cmd.equals("enroll_proc"))
 		{
-			
+			insertEnroll(request,response);
+			searchUserEnroll(request,response);
+		}
+		else if(cmd.equals("enroll_del_proc"))
+		{
+			deleteEnroll(request,response);
+			searchUserEnroll(request,response);
 		}
 	}
 	
-	public boolean insertEnroll(HttpServletRequest request, HttpServletResponse response) {
-		
+	public boolean insertEnroll(HttpServletRequest request, HttpServletResponse response) 
+	{		
 		/*
 		 * Insert review information passed by application users from web to Database
 		 * If succeeded insertion of review information into DB, it would return 'true' , otherwise 'false'
 		 */
 		
 		EnrollDAO enrollDao = EnrollDAO.getInstance();
-		UserDAO userDao = UserDAO.getInstance();
-		CourseDAO courseDAO = CourseDAO.getInstance();
+		//UserDAO userDao = UserDAO.getInstance();
+		//CourseDAO courseDAO = CourseDAO.getInstance();
 		
-		HttpSession session = request.getSession();
-		User user = (User)session.getAttribute("user");
-		Course course = (Course)session.getAttribute("course");
+		//HttpSession session = request.getSession();
+		//User user = (User)session.getAttribute("user");
+		//Course course = (Course)session.getAttribute("course");
 		
-		State state = null;
+		State state = State.BEGIN;
 		// State 작성해야함.
 		
 		Enroll enroll = new Enroll();
+		String courseNumber = request.getParameter("courseNumber");
 		
-		enroll.setUserId(user.getUserId());
-		enroll.setCourseNumber(course.getCourseNumber());
+		System.out.println(courseNumber);
+	
+		
+		enroll.setUserId("2013112023");
+		enroll.setCourseNumber(courseNumber);
 		// 학수번호 얻어오는 작업 필요
 		enroll.setState(state);
 		
 		boolean res = enrollDao.insertEnroll(enroll);
 		
-		if (res) {
-			System.out.println("insert enroll success");
-			return true;
-		} else {
-			System.out.println("insert enroll failed");
-			return false;
-		}
+		return res;
+		
 	}
 	
 	public boolean deleteEnroll(HttpServletRequest request, HttpServletResponse response) {
@@ -101,25 +107,24 @@ public class EnrollController extends HttpServlet {
 		 */
 		EnrollDAO enrollDao = EnrollDAO.getInstance();
 		
-		HttpSession session = request.getSession();
-		User user = (User)session.getAttribute("user");
-		Course course = (Course)session.getAttribute("course");
+		//HttpSession session = request.getSession();
+		//User user = (User)session.getAttribute("user");
+		//Course course = (Course)session.getAttribute("course");
 		
-		String userId = user.getUserId();
-		String courseNumber = course.getCourseNumber();
+		//String userId = user.getUserId();
+		//String courseNumber = course.getCourseNumber();
 		
+		//boolean res = enrollDao.deleteEnroll(userId,courseNumber);
+		String courseNumber = request.getParameter("courseNumber");
+		String userId = "2013112023";
+		
+		//ArrayList<Enroll> enrollList = new ArrayList<Enroll>();
 		boolean res = enrollDao.deleteEnroll(userId,courseNumber);
 		
-		if (res) {
-			System.out.println("delete enroll success");
-			return true;
-		} else {
-			System.out.println("delete enroll failed");
-			return false;
-		}
+		return res;
 	}
 	
-	public boolean updateReview(HttpServletRequest request, HttpServletResponse response) {
+	public boolean updateEnroll(HttpServletRequest request, HttpServletResponse response) {
 		
 		/*
 		 * Modify enroll information selected by application users from web in Database
@@ -144,16 +149,20 @@ public class EnrollController extends HttpServlet {
 		
 		boolean res = enrollDao.updateEnroll(enroll);
 		
-		if (res) {
-			System.out.println("update enroll success");
-			return true;
-		} else {
-			System.out.println("update enroll failed");
-			return false;
-		}
+		RequestDispatcher rd = null;
+		rd = request.getRequestDispatcher("lecture-evaluation.jsp");
+		//rd = request.getRequestDispatcher("/Review.do");
+		
+		try {
+			rd.forward(request, response);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+		return res;
 	}
 	
-	public ArrayList<Enroll> searchEnroll(HttpServletRequest request, HttpServletResponse response) {
+	public void searchUserEnroll(HttpServletRequest request, HttpServletResponse response) {
 		
 		/*
 		 * Search all of enrolls by userId information from Database
@@ -165,20 +174,31 @@ public class EnrollController extends HttpServlet {
 		HttpSession session = request.getSession();
 		User user = (User)session.getAttribute("user");
 		
-		ArrayList<Enroll> enrollList = new ArrayList<Enroll>();
-		enrollList = enrollDao.searchEnroll(user.getUserId());
+		String userId = user.getUserId();
 		
-		if (enrollList.size() > 0) {
-			System.out.println("searching enroll by userId successes");
-			return enrollList;
-		} else {
-			System.out.println("searching review by userId is failed");
-			return null;
+		ArrayList<Enroll> enrollList = new ArrayList<Enroll>();
+		enrollList = enrollDao.searchUserEnroll(userId);
+		
+		for(int i = 0; i<enrollList.size(); i++){
+			System.out.println(enrollList.get(i).getCourseNumber());
 		}
+	
+		request.setAttribute("enroll_list",enrollList);
+		RequestDispatcher rd = null;
+		rd = request.getRequestDispatcher("course-list.jsp");
+		rd = request.getRequestDispatcher("/Review.do");
+		
+		try {
+			rd.forward(request, response);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+		
 	}
 	
-public ArrayList<Enroll> searchAllEnrolls(HttpServletRequest request, HttpServletResponse response) {
-		
+	public ArrayList<Enroll> searchAllEnrolls(HttpServletRequest request, HttpServletResponse response) 
+	{
 		/*
 		 * Search all of enrolls information from Database
 		 * If succeeded searching all of enrolls information into DB, it would return 'list of enroll' , otherwise 'null'
@@ -188,6 +208,17 @@ public ArrayList<Enroll> searchAllEnrolls(HttpServletRequest request, HttpServle
 		
 		ArrayList<Enroll> enrollList = new ArrayList<Enroll>();
 		enrollList = enrollDao.searchAllEnrolls();
+		
+		RequestDispatcher rd = null;
+		rd = request.getRequestDispatcher("lecture-evaluation.jsp");
+		//rd = request.getRequestDispatcher("/Review.do");
+		
+		try {
+			rd.forward(request, response);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 		
 		if (enrollList.size() > 0) {
 			System.out.println("searching enroll by userId successes");

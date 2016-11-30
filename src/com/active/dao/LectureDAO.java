@@ -68,8 +68,8 @@ public class LectureDAO {
 		
 		Connection conn = getConnection();
 		
-		String lectureSQL = "Insert Into Lecture(lectureId, courseNumber, title, explanation, filePath)"
-							+ " Values(?,?,?,?,?)";
+		String lectureSQL = "Insert Into Lecture(lectureId, courseNumber, title, explanation, chapter, filePath)"
+							+ " Values(?,?,?,?,?,?)";
 				
 		PreparedStatement pstmt = null;
 		
@@ -80,7 +80,8 @@ public class LectureDAO {
 			pstmt.setString(2, courseNumber);
 			pstmt.setString(3, lecture.getTitle());
 			pstmt.setString(4, lecture.getExplanation());
-			pstmt.setString(5, lecture.getFilePath());
+			pstmt.setString(5, lecture.getChapter());
+			pstmt.setString(6, lecture.getFilePath());
 			
 			int result = pstmt.executeUpdate();
 			
@@ -138,7 +139,7 @@ public class LectureDAO {
 		
 		Connection conn = getConnection();
 		
-		String updateSQL = "update lecture set title = ?, explanation = ?, filePath = ?, hits = ?"
+		String updateSQL = "update lecture set title = ?, explanation = ?, chapter = ?, filePath = ?, hits = ?"
 						+ " where LectureId = ?";
 		
 		PreparedStatement pstmt = null;
@@ -149,8 +150,9 @@ public class LectureDAO {
 			pstmt.setString(1, lecture.getTitle());
 			pstmt.setString(2, lecture.getExplanation());
 			pstmt.setString(3, lecture.getFilePath());
-			pstmt.setInt(4, lecture.getHits());
-			pstmt.setString(5, lecture.getLectureId());
+			pstmt.setString(4, lecture.getChapter());
+			pstmt.setInt(5, lecture.getHits());
+			pstmt.setString(6, lecture.getLectureId());
 			
 			int result = pstmt.executeUpdate();
 			
@@ -160,7 +162,7 @@ public class LectureDAO {
 				// 다시 수정된 materialList 를 insert 함
 				Statement stmt = conn.createStatement();
 				
-				String deleteSQL = "DELETE FROM MATERIAL WHERE LECTUREID = '" + lecture.getLectureId() + "'";
+				String deleteSQL = "DELETE FROM MATERIAL WHERE LECTUREID = '" + lecture.getLectureId() + "'" + "ORDER BY CHAPTER";
 				
 				int res = stmt.executeUpdate(deleteSQL);
 				
@@ -191,11 +193,10 @@ public class LectureDAO {
 	public ArrayList<Lecture> searchLectureList(String courseNumber) {
 		
 		Connection conn = getConnection();
-		
-		Lecture lecture= new Lecture();
+	
 		ArrayList<Lecture> lectureList = new ArrayList<Lecture>();
 		
-		String searchSQL = "Select * FROM LECTURE WHERE courseNumber = '" + courseNumber + "'";
+		String searchSQL = "Select * FROM LECTURE WHERE courseNumber = '" + courseNumber + "'" + "ORDER BY CHAPTER";
 		
 		Statement stmt = null;
 		
@@ -207,9 +208,12 @@ public class LectureDAO {
 			
 			while(rs.next()) {
 				
+				Lecture lecture= new Lecture();
+				
 				lecture.setLectureId(rs.getString("lectureId"));
 				lecture.setTitle(rs.getString("title"));
 				lecture.setExplanation(rs.getString("explanation"));
+				lecture.setChapter(rs.getString("chapter"));
 				lecture.setFilePath(rs.getString("filePath"));
 				lecture.setHits(rs.getInt("hits"));
 				
@@ -253,7 +257,7 @@ public class LectureDAO {
 		
 		Lecture tLecture= new Lecture();
 
-		String searchSQL = "Select * from Lecture where lectureId = '" + tempLectureId + "'";
+		String searchSQL = "Select * from Lecture where lectureId = '" + tempLectureId + "'" + "ORDER BY CHAPTER";
 		
 		Statement stmt = null;
 		
@@ -262,6 +266,7 @@ public class LectureDAO {
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
 			while(rSet.next()) {
+				
 				tLecture.setLectureId(rSet.getString("lectureId"));
 				tLecture.setTitle(rSet.getString("title"));
 				tLecture.setExplanation(rSet.getString("explanation"));
@@ -287,10 +292,9 @@ public class LectureDAO {
 		
 		Connection conn = getConnection();
 		
-		Lecture tLecture= new Lecture();
 		ArrayList<Lecture> lectureList = new ArrayList<Lecture>();
 
-		String searchSQL = "Select * from Lecture";
+		String searchSQL = "Select * from Lecture" + "ORDER BY CHAPTER";
 		
 		Statement stmt = null;
 		
@@ -300,11 +304,14 @@ public class LectureDAO {
 			
 			while(rSet.next()) {
 				
+				Lecture tLecture= new Lecture();
+				
 				tLecture.setLectureId(rSet.getString("lectureId"));
 				tLecture.setTitle(rSet.getString("title"));
 				tLecture.setExplanation(rSet.getString("explanation"));
 				tLecture.setFilePath(rSet.getString("filePath"));
 				tLecture.setHits(rSet.getInt("hits"));
+				
 				lectureList.add(tLecture);
 			}
 			

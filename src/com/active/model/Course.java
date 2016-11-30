@@ -7,6 +7,8 @@ public class Course
 	private String courseName;
 	private String professor;
 	private String major;
+	private String explanation;
+	private int unit;
 	
 	public String getCourseNumber() {
 		return courseNumber;
@@ -32,10 +34,24 @@ public class Course
 	public void setProfessor(String professor) {
 		this.professor = professor;
 	}
+	
+	public String getExplanation() {
+		return explanation;
+	}
+	public void setExplanation(String explanation) {
+		this.explanation = explanation;
+	}
+	
 	public String getMajor() {
 		return major;
 	}
 	public void setMajor(String major) {
 		this.major = major;
+	}
+	public int getUnit() {
+		return unit;
+	}
+	public void setUnit(int unit) {
+		this.unit = unit;
 	}
 }

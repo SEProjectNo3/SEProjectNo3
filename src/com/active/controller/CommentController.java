@@ -4,6 +4,7 @@ package com.active.controller;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -21,7 +22,7 @@ import com.active.model.User;
 /**
  * Servlet implementation class CommentController
  */
-@WebServlet("/CommentController")
+@WebServlet("/Comment.do")
 public class CommentController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -38,63 +39,90 @@ public class CommentController extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		request.setCharacterEncoding("utf-8");
 		String cmd = request.getParameter("cmd");
+		
+		if(cmd == null)
+		{
+			searchComment(request,response);
+		}
+		else if(cmd.equals("comment_del_proc"))
+		{
+			deleteComment(request,response);
+			searchComment(request,response);
+		}
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{	
+		request.setCharacterEncoding("utf-8");
 		String cmd = request.getParameter("cmd");
+		
+		if(cmd.equals("comment_proc"))
+		{
+			insertComment(request,response);
+			searchComment(request,response);
+		}
+		else if(cmd.equals("comment_del_proc"))
+		{
+			deleteComment(request,response);
+			searchComment(request,response);
+		}
+		else if(cmd.equals("comment_modify_proc"))
+		{
+			updateComment(request,response);
+			searchComment(request,response);
+		}
 	}
 
 	public boolean insertComment(HttpServletRequest request, HttpServletResponse response)
 	{
-		LectureDAO lectureDao = LectureDAO.getInstance();
-		QuizDAO quizDao = QuizDAO.getInstance();
+		/*
+		 * Insert comment information written by application users from web to Database
+		 * If succeeded insertion of comment information into DB, it would return 'true' , otherwise 'false'
+		 */
+		
+		//LectureDAO lectureDao = LectureDAO.getInstance();
+		//QuizDAO quizDao = QuizDAO.getInstance();
 		CommentDAO commentDao = CommentDAO.getInstance();
 		
-		HttpSession session = request.getSession();
-		User user = (User)session.getAttribute("user");
-		Lecture lecture = (Lecture)session.getAttribute("lecture");
+		//HttpSession session = request.getSession();
+		//User user = (User)session.getAttribute("user");
+		//Lecture lecture = (Lecture)session.getAttribute("lecture");
 		
 		String content = request.getParameter("content");
 		
 		Comment comment = new Comment();
 		
 		comment.setContent(content);
-		comment.setWriter(user.getUserName());
-		comment.setLetureId(lecture.getLectureId());
+		//writer, lectureId 받아오는 로직 필요
+		comment.setWriter("2013112023");
+		comment.setLectureId("cse4036-01-01");
 		
 		boolean res = commentDao.insertComment(comment);
-		
-		if (res) {
-			System.out.println("insert comment success");
-			return true;
-		} else {
-			System.out.println("insert comment failed");
-			return false;
-		}
+	
+		return res;
 	}
 	
 	public boolean deleteComment(HttpServletRequest request, HttpServletResponse response)
 	{
-		LectureDAO lectureDao = LectureDAO.getInstance();
-		QuizDAO quizDao = QuizDAO.getInstance();
+		/*
+		 * Delete comment information selected by application users from web in Database
+		 * If succeeded deletion of comment information into DB, it would return 'true' , otherwise 'false'
+		 */
+		
+		//LectureDAO lectureDao = LectureDAO.getInstance();
+		//QuizDAO quizDao = QuizDAO.getInstance();
 		CommentDAO commentDao = CommentDAO.getInstance();
 		
 		int commentNo = Integer.parseInt(request.getParameter("commentId"));
 
 		boolean res = commentDao.deleteComment(commentNo);
 		
-		if (res) {
-			System.out.println("delete comment success");
-			return true;
-		} else {
-			System.out.println("delete comment failed");
-			return false;
-		}
+		return res;
 	}
 	
 	public boolean updateComment(HttpServletRequest request, HttpServletResponse response)
@@ -104,23 +132,18 @@ public class CommentController extends HttpServlet {
 		 * It is a domain that it can modify in database with content
 		 * If succeeded modification of comment information into DB, it would return 'true' , otherwise 'false'
 		 */
+		
 		CommentDAO commentDao = CommentDAO.getInstance();
 		
-		int commentNo = Integer.parseInt(request.getParameter("commentId"));
-		String content = request.getParameter("commentContent");
+		int commentNo = Integer.parseInt(request.getParameter("cId"));
+		String content = request.getParameter("content");
 				
 		boolean res = commentDao.updateComment(commentNo,content);
 		
-		if (res) {
-			System.out.println("update comment success");
-			return true;
-		} else {
-			System.out.println("update comment failed");
-			return false;
-		}
+		return res;
 	}
 	
-	public ArrayList<Comment> searchComment(HttpServletRequest request, HttpServletResponse response)
+	public void searchComment(HttpServletRequest request, HttpServletResponse response)
 	{
 		/*
 		 * Search all of comments information in the course from Database
@@ -129,18 +152,21 @@ public class CommentController extends HttpServlet {
 		
 		CommentDAO commentDao = CommentDAO.getInstance();
 		
-		HttpSession session = request.getSession();
-		String lectureId = (String)session.getAttribute("lectureId");
+		//HttpSession session = request.getSession();
+		//String lectureId = (String)session.getAttribute("lectureId");
 		
 		ArrayList<Comment> commentList = new ArrayList<Comment>();
-		commentList = commentDao.searchCommentLecture(lectureId);
+		commentList = commentDao.searchCommentLecture("cse4036-01-01");
 		
-		if (commentList.size() > 0) {
-			System.out.println("searching comment by lectureId successes");
-			return commentList;
-		} else {
-			System.out.println("searching comment by lectureId is failed");
-			return null;
+		request.setAttribute("comment_list",commentList);
+		RequestDispatcher rd = null;
+		rd = request.getRequestDispatcher("studying.jsp");
+		
+		try{
+			rd.forward(request, response);
+		}catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 	}
 }

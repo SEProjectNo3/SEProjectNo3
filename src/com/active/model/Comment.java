@@ -1,42 +1,60 @@
 package com.active.model;
 import java.sql.Date;
 
-public class Comment {
+public class Comment 
+{
 	
+	/*
+	 * private int commentNo : primary key of Comment object
+	 * private String writer : writer's name of comment
+	 * private String content : content written by writers
+	 * private Date writeTime : The time when DB has its tuple
+	 * private String lectureId : Each lecture can have Comment list, so it is a foreign key
+	 */
 	private int commentNo;
 	private String writer;
 	private String content;
 	private Date writeTime;
-	private String letureId;
+	private String lectureId;
 	
-	public int getCommentNo() {
+	public int getCommentNo() 
+	{
 		return commentNo;
 	}
-	public void setCommentNo(int commentNo) {
+	public void setCommentNo(int commentNo) 
+	{
 		this.commentNo = commentNo;
 	}
-	public String getWriter() {
+	public String getWriter() 
+	{
 		return writer;
 	}
-	public void setWriter(String writer) {
+	public void setWriter(String writer) 
+	{
 		this.writer = writer;
 	}
-	public String getContent() {
+	public String getContent() 
+	{
 		return content;
 	}
-	public void setContent(String content) {
+	public void setContent(String content) 
+	{
 		this.content = content;
 	}
-	public Date getWriteTime() {
+	public Date getWriteTime() 
+	{
 		return writeTime;
 	}
-	public void setWriteTime(Date writeTime) {
+	public void setWriteTime(Date writeTime) 
+	{
 		this.writeTime = writeTime;
 	}
-	public String getLetureId() {
-		return letureId;
+	public String getLectureId() 
+	{
+		return lectureId;
 	}
-	public void setLetureId(String letureId) {
-		this.letureId = letureId;
+	public void setLectureId(String lectureId) 
+	{
+		this.lectureId = lectureId;
 	}
 }

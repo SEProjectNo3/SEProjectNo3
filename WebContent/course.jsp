@@ -1,6 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
-<%@page import="java.util.*"%>
+<%@page import="com.active.model.Lecture"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri = "http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="java.util.*"%>
+<%@ page import="com.active.constant.*" %>
 <%
 	request.setCharacterEncoding("UTF-8");
 %>
@@ -8,7 +10,7 @@
 <html lang="en">
 
 <head>
-<title>교수소개 및 강의목록</title>
+<title>교수 소개 및 강좌 목록</title>
 
 <!-- Bootstrap Core CSS -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -20,12 +22,18 @@
 <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet"
 	type="text/css">
 
-<!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
 </head>
+
+<script>
+
+function onEvaluation(courseNumber) {
+	
+	alert(courseNumber);
+	location.href = "Review.do?cmd=evaluation&course_number=" + courseNumber;
+}
+
+</script>
+
 <body>
 	<jsp:include page="/header.jsp" flush="true" />
 
@@ -34,94 +42,83 @@
 		<div class="row-fluid">
 			<div class="col-sm-2"></div>
 			<div class="col-sm-8">
-				<div class="thumbnail">
-					<img class="img-responsive" src="img/test.jpg" alt="Cinque Terre"
-						width="800" height="300">
-					<div class="caption-full">
-						<div class="text-right">
-							<a href="lecture-evaluation.jsp" class="btn btn-success">강의
-								평가하기</a>
-						</div>
-
-						<h4>
-							<a href="#">최은만 교수님</a>
-						</h4>
-						<p>
-							See more snippets like these online store reviews at <a
-								target="_blank" href="http://bootsnipp.com">Bootsnipp -
-								http://bootsnipp.com</a>.
-						</p>
-						<p>
-							Want to make these reviews work? Check out <strong><a
-								href="http://maxoffsky.com/code-blog/laravel-shop-tutorial-1-building-a-review-system/">this
-									building a review system tutorial</a> </strong>over at maxoffsky.com!
-						</p>
-						<p>전공분야 소프트웨어공학 세부연구분야 소프트웨어 테스팅, 소프트웨어 설계 학사학위과정 동국대학교 전자계산학과
-							이학사 석사학위과정 KAIST 전산학과 공학 석사 대표저서 새로 쓴 소프트웨어공학, 정익사, 2014 UML을 이용한
-							시스템 분석설계, 생능출판사, 2010 객체지향 소프트웨어 공학, 사이텍미디어. 2005</p>
-					</div>
-					<div class="ratings">
-						<p class="pull-right">3 reviews</p>
-						<p>
-							<span class="glyphicon glyphicon-star"></span> <span
-								class="glyphicon glyphicon-star"></span> <span
-								class="glyphicon glyphicon-star"></span> <span
-								class="glyphicon glyphicon-star"></span> <span
-								class="glyphicon glyphicon-star-empty"></span> 4.0 stars
-						</p>
-					</div>
-				</div>
+				<table style="border:2px solid #c0c0c0; border-radius:10px; width:100%; height:100px; margin-top:10%; margin-bottom:2%">
+					<tr>
+						<td colspan="4" style="font-size:20pt; font-weight:bold; width:88%">${course.courseName }</td>
+						<td rowspan="2"> 
+							<input type="button" onclick="onEvaluation('${course.courseNumber}')" class="btn btn-success" value="강의평가"/>
+						</td>
+					</tr>
+					<tr>
+						<td width="30%"><h4 style="color:#0080c0">${course.professorName } 교수님</h4></td>
+						<td align="left">
+							<c:forEach varStatus="i" begin="1" end="${Constants.MAX_RATE }">
+								<c:choose>
+									<c:when test="${course.rate >= i.index}">
+										<span class="glyphicon">
+											<img src="css/star/star-gold32.png" width="18px" height="50%">
+										</span>
+									</c:when>
+									
+									<c:otherwise>
+										<span class="glyphicon">
+											<img src="css/star/star-white32.png" width="18px" height="50%">
+										</span>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="5"><h6>${course.explanation }</h6></td>
+					</tr>
+				</table>
 			</div>
 		</div>
 	</div>
+	
+	<!-- 강좌 목록 부분 -->
 	<div class="container-fluid">
 		<div class="row-fluid">
 			<div class="col-sm-2"></div>
 			<div class="col-sm-8">
 				<h2>강좌 목록</h2>
 				
-				<div class="panel panel-default">
-					<!-- Default panel contents -->
-					<div class="panel-heading">1단원</div>
-					<ul class="list-group">
-						<li class="list-group-item">사용 사례</li>
-						<li class="list-group-item">사용 다이어그램</li>
-					</ul>
-				</div>
-
-				<div class="panel panel-default">
-					<div class="panel-heading">2단원</div>
-					<!-- List group -->
-					<ul class="list-group">
+				<!-- 단원에 맞는 강좌의 목록을 뿌려주는 부분 -->
+				<c:forEach varStatus="i" begin="1" end="${unit }">
+					<div class="panel panel-default">
+					<div class="panel-heading">${i.index} 단원</div>
 					
-						<li class="list-group-item"><a href = "studying.jsp">객체지향개념(1)</a></li>
-						<li class="list-group-item"><a href = "studying.jsp">객체지향개념(2)</a></li>
-						<li class="list-group-item"><a href = "studying.jsp">객체지향개념(3)</a></li>
-						<li class="list-group-item"><a href = "studying.jsp">클래스 다이어그램</a></li>
-						
-					</ul>
-				</div>
-
-				<div class="panel panel-default">
-					<div class="panel-heading">3단원</div>
-
 					<ul class="list-group">
-						<li class="list-group-item">아키텍쳐설계(1)</li>
-						<li class="list-group-item">아키텍쳐설계(2)</li>
-						<li class="list-group-item">아키텍쳐설계(3)</li>
-						<li class="list-group-item">시퀀스 다이어그램</li>
+						<c:forEach var="lecture" items="${lecture_list }">
+							<c:set var="count" value="1"/>
+							<c:forTokens var="units" items="${lecture.chapter}" delims="-">
+								
+								<!-- lecture의 chapter 가 1-2 와 같이 구성되어 있음
+								     1은 i.index의 큰 단원을 의미하며, 2는 소단원을 의미함 -->
+								     
+								<c:if test="${i.index == units and count == 1}">
+						  			<li class="list-group-item">
+						  			<a href="Course.do?cmd=sugang&id=${lecture.lectureId }">${lecture.title }</a>
+						  			</li>
+								</c:if>
+								<c:set var="count" value="${count+1 }"/>
+							</c:forTokens>
+						</c:forEach>						
 					</ul>
-				</div>
+					</div>
+				</c:forEach>
+				
 			</div>
 		</div>
 	</div>
 
+	<!-- 댓글 기능 -->
 	<div class="container">
 		<div class="well">
-			<textarea class="form-control col-sm-5" rows="5"></textarea>
 			<div class="text-right">
-				<a class="btn btn-success">댓글쓰기?</a>
-			</div>
+            <a class="btn btn-success" href="Review.do?cmd=evaluation&course_number=${course.courseNumber }">강의평가하기</a>
+         	</div>
 
 			<hr>
 

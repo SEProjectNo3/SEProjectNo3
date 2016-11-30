@@ -71,3 +71,9 @@
 	float:left;
 	height:13px;	
 }
+
+.btn-basic {
+  color: #fff;
+  background-color: #ffc90e;
+  border-color: #ffc90e;
+}

@@ -16,7 +16,7 @@
 <!-- Custom CSS -->
 <link href="css/modern-business.css" rel="stylesheet">
 <!-- Custom CSS -->
-<link href="css/full-slider.css" rel="stylesheet">
+<link href="css/seungheon.css" rel="stylesheet">
 
 <!-- Custom Fonts -->
 <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet"
@@ -76,7 +76,6 @@
 	</div>
 
 	<br>
-
 
 	<hr>
 

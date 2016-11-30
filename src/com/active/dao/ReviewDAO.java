@@ -77,7 +77,7 @@ public class ReviewDAO
 				+ " Values(?,?,?,?)";
 		
 		PreparedStatement pstmt = null;
-		
+		System.out.println(tempReview.getCourseNumber());
 		try {
 			pstmt = conn.prepareStatement(insertSQL);
 			
@@ -176,14 +176,11 @@ public class ReviewDAO
 	 * @param tempCourseNumber
 	 * @return
 	 */
-	public ArrayList<Review> searchReview(String tempCourseNumber) {
-		Connection conn = getConnection();
-		
+	public ArrayList<Review> searchReview(String tempCourseNumber) 
+	{
+		Connection conn = getConnection();	
 		ArrayList<Review> reviewList = new ArrayList<Review>();
-		Review tReview= new Review();
-
 		String searchSQL = "Select * from review where courseNumber LIKE '%" + tempCourseNumber + "%'" ;
-		
 		Statement stmt = null;
 		
 		try
@@ -191,22 +188,29 @@ public class ReviewDAO
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next()) {
+			while(rSet.next()) 
+			{
+				// Make array list of review object until rSet.next() done
+				// And return it to represent list of review
+				
+				Review tReview= new Review();
 				tReview.setReviewNo(rSet.getInt("reviewNo"));
 				tReview.setWriter(rSet.getString("writer"));
 				tReview.setContent(rSet.getString("content"));
 				tReview.setRate(rSet.getInt("rate"));
 				tReview.setTime(rSet.getDate("writeTime"));
 				tReview.setCourseNumber(rSet.getString("courseNumber"));
-				
 				reviewList.add(tReview);
-			}
+			}	
 			
 			return reviewList;
-		} catch(SQLException e) {
+			
+		}catch(SQLException e) 
+		{
 			e.printStackTrace();
 			return null;
-		} finally {
+		} finally 
+		{
 			closeConnection(conn);
 		}
 	}

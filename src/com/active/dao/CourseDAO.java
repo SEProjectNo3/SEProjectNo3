@@ -122,11 +122,11 @@ public class CourseDAO {
 	 * This method replaces name and professor of course with what users want to change
 	 * When users fill out mistakenly the information of courses, they can modify them
 	 */
-	public boolean updateCourse(String tempCourseNumber, String tempCourseName, String tempProfessor, String tempStudentCount, String tempMajor) {
+	public boolean updateCourse(Course course) {
 		
 		Connection conn = getConnection();
 		
-		String updateSQL = "update COURSE set courseName = ? , professor = ? ,studentCount = ?, major = ?"
+		String updateSQL = "update COURSE set courseName = ? , professor = ? ,studentCount = ?, major = ?, unit = ?"
 				+ " where courseNumber = ?";
 		
 		PreparedStatement pstmt = null;
@@ -134,11 +134,12 @@ public class CourseDAO {
 		try {
 			pstmt = conn.prepareStatement(updateSQL);
 			
-			pstmt.setString(1, tempCourseName);
-			pstmt.setString(2, tempProfessor);
-			pstmt.setString(3, tempCourseNumber);
-			pstmt.setString(4, tempStudentCount);
-			pstmt.setString(5, tempMajor);
+			pstmt.setString(1, course.getCourseName());
+			pstmt.setString(2, course.getProfessor());
+			pstmt.setInt(3, course.getStudentCount());
+			pstmt.setString(4, course.getMajor());
+			pstmt.setInt(5, course.getUnit());
+			pstmt.setString(6, course.getCourseNumber());
 			
 			int result = pstmt.executeUpdate();
 			
@@ -173,15 +174,60 @@ public class CourseDAO {
 		
 		try {
 			stmt = conn.createStatement();
-			ResultSet rSet = stmt.executeQuery(searchSQL);
+			ResultSet rs = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next()) {
+			while(rs.next()) {
 				Course course= new Course();
-				course.setCourseNumber(rSet.getString("courseNumber"));
-				course.setCourseName(rSet.getString("courseName"));
-				course.setStudentCount(rSet.getInt("studentCount"));
-				course.setMajor(rSet.getString("major"));
-				course.setProfessor(rSet.getString("professor"));
+				course.setCourseNumber(rs.getString("courseNumber"));
+				course.setCourseName(rs.getString("courseName"));
+				course.setStudentCount(rs.getInt("studentCount"));
+				course.setMajor(rs.getString("major"));
+				course.setProfessor(rs.getString("professor"));
+				course.setUnit(rs.getInt("unit"));
+				
+				courseList.add(course);
+			}
+			
+			return courseList;
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			closeConnection(conn);
+		}
+	}
+	
+	/**
+	 * 교수 id 로 현재 교수가 개설중인 course 목록을 가져오는 함수
+	 * @param professorId
+	 * @return
+	 */
+	public ArrayList<Course> searchProfessorCourse(String professorId) {
+		
+		Connection conn = getConnection();
+		ArrayList<Course> courseList = new ArrayList<Course>();
+		
+		String searchSQL = "Select * from COURSE where professor = '" + professorId + "'";
+		
+		Statement stmt = null;
+		
+		try {
+			stmt = conn.createStatement();
+			
+			ResultSet rs = stmt.executeQuery(searchSQL);
+			
+			while(rs.next()) {
+				
+				Course course= new Course();
+				
+				course.setCourseNumber(rs.getString("courseNumber"));
+				course.setCourseName(rs.getString("courseName"));
+				course.setStudentCount(rs.getInt("studentCount"));
+				course.setMajor(rs.getString("major"));
+				course.setProfessor(rs.getString("professor"));
+				course.setUnit(rs.getInt("unit"));
+				
 				courseList.add(course);
 			}
 			
@@ -213,15 +259,16 @@ public class CourseDAO {
 		
 		try {
 			stmt = conn.createStatement();
-			ResultSet rSet = stmt.executeQuery(searchSQL);
+			ResultSet rs = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next()) {
+			while(rs.next()) {
 				
-				course.setCourseNumber(rSet.getString("courseNumber"));
-				course.setCourseName(rSet.getString("courseName"));
-				course.setStudentCount(rSet.getInt("studentCount"));
-				course.setMajor(rSet.getString("major"));
-				course.setProfessor(rSet.getString("professor"));
+				course.setCourseNumber(rs.getString("courseNumber"));
+				course.setCourseName(rs.getString("courseName"));
+				course.setStudentCount(rs.getInt("studentCount"));
+				course.setMajor(rs.getString("major"));
+				course.setProfessor(rs.getString("professor"));
+				course.setUnit(rs.getInt("unit"));
 				courseList.add(course);
 			}
 			
@@ -253,15 +300,17 @@ public class CourseDAO {
 		
 		try {
 			stmt = conn.createStatement();
-			ResultSet rSet = stmt.executeQuery(searchSQL);
+			ResultSet rs = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next()) {
+			while(rs.next()) {
 				Course course= new Course();
-				course.setCourseNumber(rSet.getString("courseNumber"));
-				course.setCourseName(rSet.getString("courseName"));
-				course.setStudentCount(rSet.getInt("studentCount"));
-				course.setMajor(rSet.getString("major"));
-				course.setProfessor(rSet.getString("professor"));
+				course.setCourseNumber(rs.getString("courseNumber"));
+				course.setCourseName(rs.getString("courseName"));
+				course.setStudentCount(rs.getInt("studentCount"));
+				course.setMajor(rs.getString("major"));
+				course.setProfessor(rs.getString("professor"));
+				course.setUnit(rs.getInt("unit"));
+				
 				courseList.add(course);
 			}
 			
@@ -291,16 +340,17 @@ public class CourseDAO {
 		
 		try	{
 			stmt = conn.createStatement();
-			ResultSet rSet = stmt.executeQuery(searchSQL);
+			ResultSet rs = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next()) {
+			while(rs.next()) {
 				
 				Course course= new Course();
-				course.setCourseNumber(rSet.getString("courseNumber"));
-				course.setCourseName(rSet.getString("courseName"));
-				course.setStudentCount(rSet.getInt("studentCount"));
-				course.setMajor(rSet.getString("major"));
-				course.setProfessor(rSet.getString("professor"));
+				course.setCourseNumber(rs.getString("courseNumber"));
+				course.setCourseName(rs.getString("courseName"));
+				course.setStudentCount(rs.getInt("studentCount"));
+				course.setMajor(rs.getString("major"));
+				course.setProfessor(rs.getString("professor"));
+				course.setUnit(rs.getInt("unit"));
 				courseList.add(course);
 			}
 			

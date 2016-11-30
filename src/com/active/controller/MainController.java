@@ -10,6 +10,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 import com.active.model.User;
 
 /**
@@ -39,20 +44,13 @@ public class MainController extends HttpServlet {
 		
 		// 처음 실행 시
 		if(cmd == null) {
-			
+		
 			dispatcher = "/main.jsp";
 			
 			rd = request.getRequestDispatcher(dispatcher);
 			rd.forward(request, response);
 		
-		} else if (cmd == "login") {
-		
-			dispatcher = "/LoginController.do";
-			
-			rd = request.getRequestDispatcher(dispatcher);
-			rd.forward(request, response);
-			
-		} else if (cmd == "search") {
+		} else if (cmd.equals("search")) {
 			
 			dispatcher = "/CourseController.do";
 			
@@ -64,7 +62,11 @@ public class MainController extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		
+		String cmd = request.getParameter("cmd");
+		
 	}
-
 }

@@ -171,16 +171,16 @@ public class EnrollDAO {
 	 * @param userId
 	 * @return
 	 */
-	public ArrayList<Course> searchUserEnroll(String userId) {
+	public ArrayList<Course> searchUserCourse(String userId) {
 		
 		Connection conn = getConnection();
 		
 		ArrayList<Course> courseList = new ArrayList<Course>();
-		Course course = new Course();
-	
+			
 		String searchSQL = "Select * from COURSE WHERE courseNumber In "
 						+ "(Select courseNumber from ENROLL where userId = '" + userId + "'";
-		
+		//String searchSQL = "select * from enroll where userId = '"+userId+"'";
+						
 		Statement stmt = null;
 		
 		try {
@@ -188,8 +188,9 @@ public class EnrollDAO {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next()) {
-				
+			while(rSet.next()) 
+			{
+				Course course = new Course();
 				course.setCourseName(rSet.getString("courseName"));
 				course.setCourseNumber(rSet.getString("courseNumber"));
 				course.setMajor(rSet.getString("major"));
@@ -209,6 +210,40 @@ public class EnrollDAO {
 		}
 	}
 	
+	public ArrayList<Enroll> searchUserEnroll(String userId) {
+		
+		Connection conn = getConnection();
+		
+		ArrayList<Enroll> enrollList = new ArrayList<Enroll>();
+			
+		String searchSQL = "select * from enroll where userId = '"+userId+"'";
+						
+		Statement stmt = null;
+		
+		try
+		{
+			stmt = conn.createStatement();
+			ResultSet rSet = stmt.executeQuery(searchSQL);
+			
+			while(rSet.next()) {
+				Enroll tEnroll = new Enroll();
+				tEnroll.setUserId(rSet.getString("userId"));
+				tEnroll.setCourseNumber(rSet.getString("courseNumber"));
+				tEnroll.setState(State.BEGIN);
+				
+				enrollList.add(tEnroll);
+			}
+			
+			return enrollList;
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			closeConnection(conn);
+		}
+	}
+	
 	/**
 	 * 학수번호로 수강상태를 찾는 메소드
 	 * @param tempCourseNumber
@@ -219,7 +254,6 @@ public class EnrollDAO {
 		Connection conn = getConnection();
 		
 		ArrayList<Enroll> enrollList = new ArrayList<Enroll>();
-		Enroll tEnroll= new Enroll();
 	
 		String searchSQL = "Select * from enroll where courseNumber = '" + tempCourseNumber + "'";
 		
@@ -230,8 +264,9 @@ public class EnrollDAO {
 			stmt = conn.createStatement();
 			ResultSet rSet = stmt.executeQuery(searchSQL);
 			
-			while(rSet.next()) {
-				
+			while(rSet.next()) 
+			{
+				Enroll tEnroll= new Enroll();
 				tEnroll.setUserId(rSet.getString("userId"));
 				tEnroll.setCourseNumber(rSet.getString("courseNumber"));
 				tEnroll.setState(State.valueOf(rSet.getString("courseStatus")));
@@ -272,7 +307,7 @@ public class EnrollDAO {
 			while(rSet.next()) {
 				tEnroll.setUserId(rSet.getString("userId"));
 				tEnroll.setCourseNumber(rSet.getString("courseNumber"));
-				tEnroll.setState(State.valueOf(rSet.getString("status")));
+				tEnroll.setState(State.valueOf(rSet.getString("courseStatus")));
 				
 				enrollList.add(tEnroll);
 			}
